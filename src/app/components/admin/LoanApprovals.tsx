@@ -11,6 +11,7 @@ export function LoanApprovals() {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'requests' | 'repayments'>('requests');
   const [loading, setLoading] = useState(true);
+  const [approvalModal, setApprovalModal] = useState<{ id: string, currentRate: number } | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -39,9 +40,10 @@ export function LoanApprovals() {
     }
   };
 
-  const handleApproveLoan = async (id: string) => {
+  const handleApproveLoan = async (id: string, interestRate: number) => {
     try {
-      await api.put(`/loans/${id}/status`, { status: 'approved' });
+      await api.put(`/loans/${id}/status`, { status: 'approved', interestRate });
+      setApprovalModal(null);
       fetchLoans();
     } catch (err) {
       console.error('Failed to approve loan', err);
@@ -183,7 +185,7 @@ export function LoanApprovals() {
                     <td className="px-6 py-4 text-right">
                       {loan.status === 'pending' && (
                         <div className="flex justify-end gap-2">
-                          <button onClick={() => handleApproveLoan(loan._id)} className="p-1.5 bg-success/10 hover:bg-success/20 text-success rounded-md transition-colors" title={t('admin_loans.approve')}>
+                          <button onClick={() => setApprovalModal({ id: loan._id, currentRate: loan.interestRate || 5 })} className="p-1.5 bg-success/10 hover:bg-success/20 text-success rounded-md transition-colors" title={t('admin_loans.approve')}>
                             <CheckCircle size={18} />
                           </button>
                           <button onClick={() => handleRejectLoan(loan._id)} className="p-1.5 bg-danger/10 hover:bg-danger/20 text-danger rounded-md transition-colors" title={t('admin_loans.reject')}>
@@ -286,6 +288,37 @@ export function LoanApprovals() {
           )}
         </div>
       </div>
+
+      {/* Approval Modal */}
+      {approvalModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-xl border border-slate-200 dark:border-slate-700">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Approve Loan</h3>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Custom Interest Rate (%)</label>
+            <input 
+              type="number"
+              step="0.1"
+              value={approvalModal.currentRate}
+              onChange={(e) => setApprovalModal({ ...approvalModal, currentRate: parseFloat(e.target.value) || 0 })}
+              className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-700 rounded-xl mb-6 outline-none focus:border-primary text-slate-900 dark:text-white"
+            />
+            <div className="flex justify-end gap-3">
+              <button 
+                onClick={() => setApprovalModal(null)}
+                className="px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => handleApproveLoan(approvalModal.id, approvalModal.currentRate)}
+                className="px-5 py-2.5 text-sm font-medium bg-primary text-white hover:bg-primary-dark rounded-xl transition-colors"
+              >
+                Confirm Approval
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
