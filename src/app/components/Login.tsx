@@ -10,6 +10,7 @@ export function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
   const [loginMethod, setLoginMethod] = useState<'password' | 'biometric'>('password');
   const [isScanning, setIsScanning] = useState(false);
   const [scanSuccess, setScanSuccess] = useState(false);
@@ -231,7 +232,7 @@ export function Login() {
                     <div className="group relative">
                       <div className="flex justify-between items-center mb-2 ml-1 pr-1">
                         <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">{t('login.password_label')}</label>
-                        <button type="button" onClick={() => alert('Please contact admin for forgot password')} className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">{t('login.forgot_password')}</button>
+                        <button type="button" onClick={() => setShowForgotModal(true)} className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">{t('login.forgot_password')}</button>
                       </div>
                       <div className="relative">
                         <input
@@ -352,6 +353,41 @@ export function Login() {
           </div>
         </motion.div>
       </div>
+
+      {/* Premium Forgot Password Modal */}
+      <AnimatePresence>
+        {showForgotModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              onClick={() => setShowForgotModal(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-sm bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 flex flex-col items-center text-center"
+            >
+              <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                <ShieldCheck size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Password Reset</h3>
+              <p className="text-slate-500 font-medium mb-8">
+                For security reasons, please contact your system administrator to request a password reset.
+              </p>
+              <button
+                onClick={() => setShowForgotModal(false)}
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-3.5 rounded-xl transition-all shadow-md active:scale-95"
+              >
+                Understood
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
