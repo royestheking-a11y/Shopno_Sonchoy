@@ -30,6 +30,8 @@ export function MonthlyClosing() {
         `${t('admin_monthly_closing.log_total_deposits')}: ৳${res.data.totalDeposits}`,
         `${t('admin_monthly_closing.log_total_loans')}: ৳${res.data.totalLoans}`,
         `${t('admin_monthly_closing.log_profit')}: ৳${res.data.profit}`,
+        `Penalties Applied: ${res.data.penaltiesApplied}`,
+        `Advance Payments Processed: ${res.data.advancePaymentsProcessed}`
       ]);
       setStatus('success');
     } catch (err: any) {
