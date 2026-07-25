@@ -82,13 +82,6 @@ export function Login() {
         </div>
         
         <div className="relative z-10 flex items-center gap-3 font-bold text-3xl tracking-tight text-white">
-          <motion.div 
-            whileHover={{ rotate: 180 }}
-            transition={{ duration: 0.5 }}
-            className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-500/30 flex items-center justify-center border border-white/10"
-          >
-            <span className="font-sans font-bold text-2xl">S</span>
-          </motion.div>
           {t('login.brand_name')}
         </div>
 
@@ -153,9 +146,6 @@ export function Login() {
           className="w-full max-w-md bg-white p-8 sm:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100/60 backdrop-blur-xl"
         >
           <div className="lg:hidden flex items-center gap-2 font-bold text-2xl tracking-tight text-slate-900 mb-10 justify-center">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/30">
-              <span className="font-sans font-bold text-xl">S</span>
-            </div>
             {t('login.brand_name')}
           </div>
 
