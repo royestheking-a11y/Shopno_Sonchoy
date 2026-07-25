@@ -347,7 +347,9 @@ export function Login() {
             </AnimatePresence>
           </div>
 
-
+          <div className="mt-8 pt-4 border-t border-slate-100/60 text-center text-xs font-medium text-slate-500">
+            Powered by <a href="https://www.rizqara.tech" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 font-bold transition-colors">Rizqara Tech</a>
+          </div>
         </motion.div>
       </div>
     </div>
