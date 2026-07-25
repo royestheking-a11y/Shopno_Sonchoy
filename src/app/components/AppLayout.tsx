@@ -3,7 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, Users, Wallet, 
   LogOut, Download, FileText, BarChart3, 
-  Bell, Settings, Menu, X, PlusCircle, History, Landmark, Megaphone, BookOpen, ArrowUpRight
+  Bell, Settings, Menu, X, PlusCircle, History, Landmark, Megaphone, BookOpen
 } from 'lucide-react';
 import { cn } from './Layout';
 import { useTranslation } from 'react-i18next';
@@ -29,7 +29,6 @@ const MEMBER_SIDEBAR = [
   { icon: LayoutDashboard, label: 'sidebar.dashboard', path: '/' },
   { icon: Wallet, label: 'sidebar.wallet', path: '/wallet' },
   { icon: PlusCircle, label: 'sidebar.deposit', path: '/deposit' },
-  { icon: ArrowUpRight, label: 'Withdraw', path: '/withdraw' },
   { icon: History, label: 'sidebar.deposit_history', path: '/deposit-history' },
   { icon: Landmark, label: 'sidebar.loan', path: '/request-loan' },
   { icon: History, label: 'Loan History', path: '/loan-history' },
