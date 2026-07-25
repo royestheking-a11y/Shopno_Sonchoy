@@ -5,6 +5,7 @@ import api from '../../utils/api';
 import { useTranslation } from 'react-i18next';
 import { generateMembersReport } from '../../utils/pdfGenerator';
 import { Skeleton } from './ui/skeleton';
+import { useSocket } from '../../context/SocketContext';
 
 // Simple Modal Component
 const Modal = ({ isOpen, onClose, title, children }: any) => {
@@ -28,6 +29,7 @@ const Modal = ({ isOpen, onClose, title, children }: any) => {
 
 export function Members() {
   const { t } = useTranslation();
+  const { updateTicker } = useSocket();
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -54,7 +56,7 @@ export function Members() {
 
   useEffect(() => {
     fetchMembers();
-  }, []);
+  }, [updateTicker]);
 
   const fetchMembers = async () => {
     try {

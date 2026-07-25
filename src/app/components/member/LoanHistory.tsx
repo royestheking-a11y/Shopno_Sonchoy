@@ -3,14 +3,16 @@ import { Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import api from '../../../utils/api';
 import { Skeleton } from '../ui/skeleton';
 import { cn } from '../Layout';
+import { useSocket } from '../../../context/SocketContext';
 
 export function LoanHistory({ user }: { user: any }) {
   const [loans, setLoans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const { updateTicker } = useSocket();
 
   useEffect(() => {
     fetchLoans();
-  }, [user]);
+  }, [user, updateTicker]);
 
   const fetchLoans = async () => {
     try {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { SocketProvider } from '../context/SocketContext';
 
 import { Login } from './components/Login';
 import { AppLayout } from './components/AppLayout';
@@ -71,7 +72,8 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Routes>
+      <SocketProvider>
+        <Routes>
         <Route path="/" element={<AppLayout user={user} />}>
           {user.role === 'admin' ? (
             <>
@@ -102,7 +104,8 @@ export default function App() {
             </>
           )}
         </Route>
-      </Routes>
+        </Routes>
+      </SocketProvider>
     </BrowserRouter>
   );
 }

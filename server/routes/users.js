@@ -3,10 +3,14 @@ const router = express.Router();
 const User = require('../models/User');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
 
-// Get all users (Admin only)
-router.get('/', verifyToken, verifyAdmin, async (req, res) => {
+// Get all users
+router.get('/', verifyToken, async (req, res) => {
   try {
-    const users = await User.find({}, '-password');
+    let selectFields = '-password';
+    if (req.user.role !== 'admin') {
+      selectFields = '_id name role status';
+    }
+    const users = await User.find({}, selectFields);
     res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -37,6 +41,8 @@ router.put('/:id', verifyToken, async (req, res) => {
     delete updateData.password;
     
     const user = await User.findByIdAndUpdate(req.params.id, updateData, { new: true, select: '-password' });
+    const io = req.app.get('io');
+    if (io) io.emit('data_updated');
     res.json(user);
   } catch (err) {
     res.status(500).json({ error: err.message });

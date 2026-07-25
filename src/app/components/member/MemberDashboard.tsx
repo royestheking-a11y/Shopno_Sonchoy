@@ -6,6 +6,7 @@ import { cn } from '../Layout';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '../ui/skeleton';
+import { useSocket } from '../../../context/SocketContext';
 
 export function MemberDashboard({ user }: { user: any }) {
   const [recentTxns, setRecentTxns] = useState<any[]>([]);
@@ -14,19 +15,20 @@ export function MemberDashboard({ user }: { user: any }) {
   const [profitShare, setProfitShare] = useState(0);
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
+  const { updateTicker } = useSocket();
 
   useEffect(() => {
     fetchData();
-  }, [user]);
+  }, [user, updateTicker]);
 
   const fetchData = async () => {
     try {
-      const [authRes, depositsRes, loansRes, txnsRes, usersRes] = await Promise.all([
+      const [authRes, depositsRes, loansRes, txnsRes, profitRes] = await Promise.all([
         api.get(`/users/${user._id || user.id}`),
         api.get('/deposits'),
         api.get('/loans'),
         api.get('/transactions'),
-        api.get('/users')
+        api.get('/loans/system-profit')
       ]);
 
       setUserData(authRes.data);
@@ -47,9 +49,7 @@ export function MemberDashboard({ user }: { user: any }) {
       setTotalDeposits(total);
 
       // Profit Calculation
-      const loans = loansRes.data;
-      const totalProfit = loans.filter((l: any) => ['approved', 'active', 'repaid'].includes(l.status)).reduce((sum: number, l: any) => sum + (l.amount * ((l.interestRate || 5) / 100)), 0);
-      const activeMembers = usersRes.data.filter((u: any) => u.role === 'member').length;
+      const { totalProfit, activeMembers } = profitRes.data;
       if (activeMembers > 0) {
         setProfitShare(Math.floor(totalProfit / activeMembers));
       } else {

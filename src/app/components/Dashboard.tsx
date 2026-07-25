@@ -6,6 +6,7 @@ import api from '../../utils/api';
 import { useTranslation } from 'react-i18next';
 import { generateDashboardReport } from '../../utils/pdfGenerator';
 import { Skeleton } from './ui/skeleton';
+import { useSocket } from '../../context/SocketContext';
 
 const StatCard = ({ title, value, trend, trendValue, icon: Icon, colorClass }: any) => (
   <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 flex flex-col justify-between">
@@ -33,6 +34,7 @@ const StatCard = ({ title, value, trend, trendValue, icon: Icon, colorClass }: a
 
 export function Dashboard() {
   const { t } = useTranslation();
+  const { updateTicker } = useSocket();
   const [data, setData] = useState({
     activeMembers: 0,
     currentFund: 0,
@@ -46,7 +48,7 @@ export function Dashboard() {
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [updateTicker]);
 
   const fetchData = async () => {
     try {

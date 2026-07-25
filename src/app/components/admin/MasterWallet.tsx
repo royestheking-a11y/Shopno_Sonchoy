@@ -3,6 +3,7 @@ import { Wallet, TrendingUp, ArrowDownRight, ShieldCheck, PieChart } from 'lucid
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '../ui/skeleton';
+import { useSocket } from '../../../context/SocketContext';
 
 export function MasterWallet() {
   const { t } = useTranslation();
@@ -12,6 +13,7 @@ export function MasterWallet() {
   const [totalLoans, setTotalLoans] = useState(0);
   const [currentPlatformBalance, setCurrentPlatformBalance] = useState(0);
   const [loading, setLoading] = useState(true);
+  const { updateTicker } = useSocket();
 
   // Admin withdrawal state
   const [withdrawAmount, setWithdrawAmount] = useState('');
@@ -21,7 +23,7 @@ export function MasterWallet() {
 
   useEffect(() => {
     fetchWalletData();
-  }, []);
+  }, [updateTicker]);
 
   const fetchWalletData = async () => {
     try {

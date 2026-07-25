@@ -6,6 +6,7 @@ import api from '../../../utils/api';
 import { cn } from '../Layout';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '../ui/skeleton';
+import { useSocket } from '../../../context/SocketContext';
 
 export function DepositHistory({ user }: { user: any }) {
   const { t } = useTranslation();
@@ -13,10 +14,11 @@ export function DepositHistory({ user }: { user: any }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const { updateTicker } = useSocket();
 
   useEffect(() => {
     fetchData();
-  }, [user._id || user.id]);
+  }, [user._id || user.id, updateTicker]);
 
   const fetchData = async () => {
     try {

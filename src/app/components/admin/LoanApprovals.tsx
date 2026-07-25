@@ -3,9 +3,11 @@ import { CheckCircle, XCircle, Search, Eye } from 'lucide-react';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '../ui/skeleton';
+import { useSocket } from '../../../context/SocketContext';
 
 export function LoanApprovals() {
   const { t } = useTranslation();
+  const { updateTicker } = useSocket();
   const [loans, setLoans] = useState<any[]>([]);
   const [repayments, setRepayments] = useState<any[]>([]);
   const [search, setSearch] = useState('');
@@ -21,7 +23,7 @@ export function LoanApprovals() {
       setLoading(false);
     };
     loadData();
-  }, []);
+  }, [updateTicker]);
 
   const fetchLoans = async () => {
     try {

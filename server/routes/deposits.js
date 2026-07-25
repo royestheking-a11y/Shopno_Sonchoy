@@ -29,6 +29,10 @@ router.post('/', verifyToken, async (req, res) => {
       ...req.body
     });
     const saved = await deposit.save();
+    
+    const io = req.app.get('io');
+    if (io) io.emit('data_updated');
+
     res.status(201).json(saved);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -101,6 +105,9 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
         console.error('Failed to send deposit approval email:', emailErr);
       }
     }
+
+    const io = req.app.get('io');
+    if (io) io.emit('data_updated');
 
     res.json(deposit);
   } catch (err) {

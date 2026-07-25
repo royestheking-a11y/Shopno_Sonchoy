@@ -8,6 +8,18 @@ const Ledger = require('../models/Ledger');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
 const emailjs = require('@emailjs/nodejs');
 
+// Get system profit stats
+router.get('/system-profit', verifyToken, async (req, res) => {
+  try {
+    const loans = await Loan.find({ status: { $in: ['approved', 'active', 'repaid'] } });
+    const totalProfit = loans.reduce((sum, l) => sum + (l.amount * ((l.interestRate || 5) / 100)), 0);
+    const activeMembers = await User.countDocuments({ role: 'member', status: 'active' }) || await User.countDocuments({ role: 'member' });
+    res.json({ totalProfit, activeMembers });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get all loans
 router.get('/', verifyToken, async (req, res) => {
   try {
@@ -30,6 +42,8 @@ router.post('/', verifyToken, async (req, res) => {
       ...req.body
     });
     const saved = await loan.save();
+    const io = req.app.get('io');
+    if (io) io.emit('data_updated');
     res.status(201).json(saved);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -105,6 +119,8 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
     }
     
     await loan.save();
+    const io = req.app.get('io');
+    if (io) io.emit('data_updated');
     res.json(loan);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -169,6 +185,8 @@ router.post('/:id/repay', verifyToken, async (req, res) => {
         }
     }
 
+    const io = req.app.get('io');
+    if (io) io.emit('data_updated');
     res.json(repayment);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -231,6 +249,8 @@ router.put('/repayments/:id/status', verifyToken, verifyAdmin, async (req, res) 
             }
         }
         await repayment.save();
+        const io = req.app.get('io');
+        if (io) io.emit('data_updated');
         res.json(repayment);
     } catch (err) {
         res.status(500).json({ error: err.message });

@@ -4,9 +4,11 @@ import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
 import { generateDepositsReport } from '../../../utils/pdfGenerator';
 import { Skeleton } from '../ui/skeleton';
+import { useSocket } from '../../../context/SocketContext';
 
 export function DepositApprovals() {
   const { t } = useTranslation();
+  const { updateTicker } = useSocket();
   const [txns, setTxns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -15,7 +17,7 @@ export function DepositApprovals() {
 
   useEffect(() => {
     fetchTransactions();
-  }, []);
+  }, [updateTicker]);
 
   const fetchTransactions = async () => {
     try {

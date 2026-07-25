@@ -6,16 +6,18 @@ import api from '../../../utils/api';
 import { cn } from '../Layout';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '../ui/skeleton';
+import { useSocket } from '../../../context/SocketContext';
 
 export function MemberWallet({ user }: { user: any }) {
   const { t } = useTranslation();
   const [txns, setTxns] = useState<any[]>([]);
   const [userData, setUserData] = useState(user);
   const [loading, setLoading] = useState(true);
+  const { updateTicker } = useSocket();
 
   useEffect(() => {
     fetchData();
-  }, [user]);
+  }, [user, updateTicker]);
 
   const fetchData = async () => {
     try {
