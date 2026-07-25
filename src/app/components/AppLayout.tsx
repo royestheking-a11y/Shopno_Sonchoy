@@ -142,6 +142,11 @@ export function AppLayout({ user }: { user: any }) {
             <NavLink
               key={item.path}
               to={item.path}
+              onClick={() => {
+                if (window.innerWidth < 768) {
+                  setSidebarOpen(false);
+                }
+              }}
               className={({ isActive }) => cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                 isActive 

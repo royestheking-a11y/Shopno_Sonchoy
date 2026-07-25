@@ -145,7 +145,7 @@ export function Login() {
           transition={{ duration: 0.5, type: "spring" }}
           className="w-full max-w-md bg-white p-8 sm:p-10 rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100/60 backdrop-blur-xl"
         >
-          <div className="lg:hidden flex items-center gap-2 font-bold text-2xl tracking-tight text-slate-900 mb-10 justify-center">
+          <div className="lg:hidden flex items-center gap-2 font-bold text-2xl tracking-tight text-primary mb-10 justify-center">
             {t('login.brand_name')}
           </div>
 
