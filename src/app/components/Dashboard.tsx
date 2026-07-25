@@ -86,7 +86,7 @@ export function Dashboard() {
 
       const totalLoans = loans.filter((l: any) => ['approved', 'active'].includes(l.status)).reduce((sum: number, l: any) => sum + l.amount, 0);
 
-      const totalProfit = loans.filter((l: any) => ['approved', 'active', 'repaid'].includes(l.status)).reduce((sum: number, l: any) => sum + (l.amount * ((l.interestRate || 5) / 100)), 0);
+      const totalProfit = loans.filter((l: any) => l.status === 'repaid').reduce((sum: number, l: any) => sum + (l.amount * ((l.interestRate || 5) / 100)), 0);
 
       const pendingDeposits = deposits.filter((txn: any) => txn.status === 'pending').map((txn: any) => ({ ...txn, kind: t('admin_dashboard.deposit'), isTxnRoute: false }));
       const pendingWithdrawals = txns.filter((txn: any) => txn.status === 'pending' && txn.type === 'withdraw').map((txn: any) => ({ ...txn, kind: 'Withdrawal', isTxnRoute: true }));

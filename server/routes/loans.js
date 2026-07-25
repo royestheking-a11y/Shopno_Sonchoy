@@ -11,7 +11,7 @@ const emailjs = require('@emailjs/nodejs');
 // Get system profit stats
 router.get('/system-profit', verifyToken, async (req, res) => {
   try {
-    const loans = await Loan.find({ status: { $in: ['approved', 'active', 'repaid'] } });
+    const loans = await Loan.find({ status: 'repaid' });
     const totalProfit = loans.reduce((sum, l) => sum + (l.amount * ((l.interestRate || 5) / 100)), 0);
     const activeMembers = await User.countDocuments({ role: 'member', status: 'active' }) || await User.countDocuments({ role: 'member' });
     res.json({ totalProfit, activeMembers });
