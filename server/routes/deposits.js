@@ -5,6 +5,7 @@ const User = require('../models/User');
 const Ledger = require('../models/Ledger');
 const MasterWallet = require('../models/MasterWallet');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
+const emailjs = require('@emailjs/nodejs');
 
 // Get all deposits
 router.get('/', verifyToken, async (req, res) => {
@@ -75,6 +76,30 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
         referenceId: deposit._id
       });
       await ledgerEntry.save();
+
+      // Send Email Notification
+      try {
+        await emailjs.send(
+          process.env.EMAILJS_SERVICE_ID,
+          process.env.EMAILJS_TEMPLATE_DEPOSIT,
+          {
+            email: user.email,
+            name: user.name,
+            amount: deposit.amount.toLocaleString(),
+            method: deposit.method,
+            transactionId: deposit._id.toString(),
+            date: new Date().toLocaleDateString(),
+            newBalance: user.balance.toLocaleString()
+          },
+          {
+            publicKey: process.env.EMAILJS_PUBLIC_KEY,
+            privateKey: process.env.EMAILJS_PRIVATE_KEY || undefined
+          }
+        );
+        console.log(`Deposit approval email sent to ${user.email}`);
+      } catch (emailErr) {
+        console.error('Failed to send deposit approval email:', emailErr);
+      }
     }
 
     res.json(deposit);

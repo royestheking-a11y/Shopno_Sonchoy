@@ -6,6 +6,7 @@ const User = require('../models/User');
 const MasterWallet = require('../models/MasterWallet');
 const Ledger = require('../models/Ledger');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
+const emailjs = require('@emailjs/nodejs');
 
 // Get all loans
 router.get('/', verifyToken, async (req, res) => {
@@ -78,6 +79,29 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
         referenceId: loan._id
       });
       await ledgerEntry.save();
+
+      // Send Email Notification
+      try {
+        await emailjs.send(
+          process.env.EMAILJS_SERVICE_ID,
+          process.env.EMAILJS_TEMPLATE_LOAN,
+          {
+            email: user.email,
+            name: user.name,
+            amount: loan.amount.toLocaleString(),
+            interestRate: `${loan.interestRate || 5}%`,
+            loanId: loan._id.toString(),
+            date: new Date().toLocaleDateString()
+          },
+          {
+            publicKey: process.env.EMAILJS_PUBLIC_KEY,
+            privateKey: process.env.EMAILJS_PRIVATE_KEY || undefined
+          }
+        );
+        console.log(`Loan approval email sent to ${user.email}`);
+      } catch (emailErr) {
+        console.error('Failed to send loan approval email:', emailErr);
+      }
     }
     
     await loan.save();
