@@ -86,7 +86,6 @@
     "vite": "6.3.5",
     "vite-plugin-pwa": "^0.19.8"
   },
-  },
   "pnpm": {
     "overrides": {
       "vite": "6.3.5",
