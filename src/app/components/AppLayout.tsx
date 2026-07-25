@@ -37,7 +37,7 @@ const MEMBER_SIDEBAR = [
 ];
 
 export function AppLayout({ user }: { user: any }) {
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768);
   const [showNotifications, setShowNotifications] = useState(false);
   const [selectedBroadcast, setSelectedBroadcast] = useState<any | null>(null);
   const [broadcasts, setBroadcasts] = useState<any[]>([]);
