@@ -240,16 +240,19 @@ router.put('/repayments/:id/status', verifyToken, verifyAdmin, async (req, res) 
             });
             await ledgerEntry.save();
 
+            await repayment.save();
+
             const loan = await Loan.findById(repayment.loanId);
             const repayments = await LoanRepayment.find({ loanId: loan._id, status: 'approved' });
             const totalRepaid = repayments.reduce((sum, r) => sum + r.amount, 0);
-            const expectedRepayment = loan.amount + (loan.amount * (loan.interestRate / 100));
+            const expectedRepayment = loan.amount + (loan.amount * ((loan.interestRate || 5) / 100));
             if (totalRepaid >= expectedRepayment) {
                 loan.status = 'repaid';
                 await loan.save();
             }
+        } else {
+            await repayment.save();
         }
-        await repayment.save();
         const io = req.app.get('io');
         if (io) io.emit('data_updated');
         res.json(repayment);
