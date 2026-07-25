@@ -51,7 +51,7 @@ export function MemberDashboard({ user }: { user: any }) {
       // Profit Calculation
       const { totalProfit, activeMembers } = profitRes.data;
       if (activeMembers > 0) {
-        setProfitShare(Math.floor(totalProfit / activeMembers));
+        setProfitShare(parseFloat((totalProfit / activeMembers).toFixed(2)));
       } else {
         setProfitShare(0);
       }
