@@ -15,6 +15,8 @@ import { MonthlyClosing } from './components/admin/MonthlyClosing';
 import { RepayLoan } from './components/member/RepayLoan';
 import { DepositFlow } from './components/member/DepositFlow';
 import { LoanRequest } from './components/member/LoanRequest';
+import { LoanHistory } from './components/member/LoanHistory';
+import { WithdrawFlow } from './components/member/WithdrawFlow';
 import { MemberWallet } from './components/member/MemberWallet';
 import { DepositHistory } from './components/member/DepositHistory';
 import { MemberRules } from './components/member/MemberRules';
@@ -90,8 +92,10 @@ export default function App() {
             <>
               <Route index element={<MemberDashboard user={user} />} />
               <Route path="deposit" element={<DepositFlow user={user} />} />
+              <Route path="withdraw" element={<WithdrawFlow user={user} />} />
               <Route path="deposit-history" element={<DepositHistory user={user} />} />
               <Route path="request-loan" element={<LoanRequest user={user} />} />
+              <Route path="loan-history" element={<LoanHistory user={user} />} />
               <Route path="repay-loan" element={<RepayLoan user={user} />} />
               <Route path="wallet" element={<MemberWallet user={user} />} />
               <Route path="rules" element={<MemberRules />} />

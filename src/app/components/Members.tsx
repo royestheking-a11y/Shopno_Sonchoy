@@ -3,6 +3,7 @@ import { Search, Plus, MoreVertical, Filter, Download, Edit, Key, Trash2, X, Shi
 import { cn } from './Layout';
 import api from '../../utils/api';
 import { useTranslation } from 'react-i18next';
+import { generateMembersReport } from '../../utils/pdfGenerator';
 import { Skeleton } from './ui/skeleton';
 
 // Simple Modal Component
@@ -40,6 +41,8 @@ export function Members() {
   
   const [selectedMember, setSelectedMember] = useState<any>(null);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterSort, setFilterSort] = useState('all');
 
   // Form states
   const emptyForm = { 
@@ -147,10 +150,14 @@ export function Members() {
   const handleSavePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      alert(t('admin_members.alert_reset_backend'));
+      await api.put(`/users/${selectedMember._id}/password`, {
+        newPassword: formData.password
+      });
+      alert(t('admin_members.alert_reset_backend') || 'Password updated successfully');
       setIsPasswordModalOpen(false);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to reset password', err);
+      alert(err.response?.data?.message || 'Error updating password');
     }
   };
 
@@ -161,11 +168,19 @@ export function Members() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const filteredMembers = members.filter(m => 
+  let filteredMembers = members.filter(m => 
     m.name.toLowerCase().includes(search.toLowerCase()) || 
     (m.memberId && m.memberId.toLowerCase().includes(search.toLowerCase())) ||
     m.email.toLowerCase().includes(search.toLowerCase())
   );
+
+  if (filterSort === 'balance_high') {
+    filteredMembers.sort((a, b) => (b.balance || 0) - (a.balance || 0));
+  } else if (filterSort === 'loan_high') {
+    filteredMembers.sort((a, b) => (b.loanBalance || 0) - (a.loanBalance || 0));
+  } else if (filterSort === 'active_loan') {
+    filteredMembers = filteredMembers.filter(m => (m.loanBalance || 0) > 0);
+  }
 
   return (
     <div className="space-y-6">
@@ -175,7 +190,7 @@ export function Members() {
           <p className="text-sm text-slate-500 dark:text-slate-400">{t('admin_members.subtitle')}</p>
         </div>
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
+          <button onClick={() => generateMembersReport(filteredMembers, t)} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
             <Download size={16} /> {t('admin_members.export')}
           </button>
           <button 
@@ -199,9 +214,25 @@ export function Members() {
             />
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           </div>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0">
-            <Filter size={16} /> {t('admin_members.filters')}
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setIsFilterOpen(!isFilterOpen)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shrink-0"
+            >
+              <Filter size={16} /> {filterSort === 'all' ? t('admin_members.filters') : filterSort === 'balance_high' ? 'High Balance' : filterSort === 'loan_high' ? 'High Loan' : 'Has Active Loan'}
+            </button>
+            {isFilterOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setIsFilterOpen(false)}></div>
+                <div className="absolute right-0 top-12 z-50 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-[#E5E7EB] dark:border-slate-700 py-1 overflow-hidden">
+                  <button onClick={() => { setFilterSort('all'); setIsFilterOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50">Clear Filters</button>
+                  <button onClick={() => { setFilterSort('balance_high'); setIsFilterOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50">Highest Balance First</button>
+                  <button onClick={() => { setFilterSort('loan_high'); setIsFilterOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50">Highest Loan First</button>
+                  <button onClick={() => { setFilterSort('active_loan'); setIsFilterOpen(false); }} className="w-full text-left px-4 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50">Has Active Loan Only</button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="overflow-x-auto min-h-[400px]">

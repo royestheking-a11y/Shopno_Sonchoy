@@ -16,6 +16,7 @@ const reportRoutes = require('./routes/reports');
 const settingRoutes = require('./routes/settings');
 const broadcastRoutes = require('./routes/broadcasts');
 const notificationRoutes = require('./routes/notifications');
+const transactionRoutes = require('./routes/transactions');
 
 const app = express();
 const server = http.createServer(app);
@@ -46,6 +47,7 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/settings', settingRoutes);
 app.use('/api/broadcasts', broadcastRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/transactions', transactionRoutes);
 
 // Socket.io connection logging
 io.on('connection', (socket) => {

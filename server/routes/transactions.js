@@ -57,11 +57,35 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
         user.balance += transaction.amount;
         await user.save();
 
-        let setting = await Setting.findOne();
-        if (setting) {
-          setting.masterWalletBalance += transaction.amount;
-          await setting.save();
+        const MasterWallet = require('../models/MasterWallet');
+        let wallet = await MasterWallet.findOne();
+        if (!wallet) {
+          wallet = new MasterWallet();
         }
+        wallet.balance += transaction.amount;
+        await wallet.save();
+      } else if (transaction.type === 'withdraw') {
+        user.balance -= transaction.amount;
+        await user.save();
+        
+        const MasterWallet = require('../models/MasterWallet');
+        let wallet = await MasterWallet.findOne();
+        if (wallet) {
+          wallet.balance -= transaction.amount;
+          await wallet.save();
+        }
+
+        const Ledger = require('../models/Ledger');
+        const ledgerEntry = new Ledger({
+          type: 'withdraw',
+          description: `Withdrawal by User ${user.memberId || user.name}`,
+          debitAccount: 'Master Wallet',
+          debitAmount: transaction.amount,
+          creditAccount: 'User Wallet / External',
+          creditAmount: transaction.amount,
+          referenceId: transaction._id
+        });
+        await ledgerEntry.save();
       }
     }
 

@@ -38,6 +38,43 @@ export function Ledger() {
       return t._id.toLowerCase().includes(lowerSearch) || t.description.toLowerCase().includes(lowerSearch);
     });
 
+  const exportToCSV = () => {
+    const headers = ['Date', 'Transaction ID', 'Account', 'Description', 'Debit', 'Credit'];
+    
+    const rows: string[][] = [];
+    filteredTxns.forEach((txn: any) => {
+      rows.push([
+        new Date(txn.date).toLocaleDateString(),
+        txn._id,
+        txn.debitAccount,
+        txn.description,
+        txn.debitAmount.toString(),
+        ''
+      ]);
+      rows.push([
+        '',
+        '',
+        txn.creditAccount,
+        `Record Desc: ${txn.type}`,
+        '',
+        txn.creditAmount.toString()
+      ]);
+    });
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${(cell || '').replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `General_Ledger_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -46,7 +83,7 @@ export function Ledger() {
           <p className="text-sm text-slate-500 dark:text-slate-400">{t('admin_ledger.subtitle')}</p>
         </div>
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-[#E5E7EB] dark:border-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50">
+          <button onClick={exportToCSV} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-[#E5E7EB] dark:border-slate-700 rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50">
             <Download size={16} /> {t('admin_ledger.export_csv')}
           </button>
         </div>

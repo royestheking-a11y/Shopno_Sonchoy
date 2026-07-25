@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
-import { getTransactions, saveTransactions } from '../../../utils/mockDb';
 import api from '../../../utils/api';
 import { Skeleton } from '../ui/skeleton';
 
 export function WithdrawFlow({ user }: { user: any }) {
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('Bank Transfer');
+  const [accountDetails, setAccountDetails] = useState('');
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
   const [userData, setUserData] = useState(user);
@@ -20,7 +20,7 @@ export function WithdrawFlow({ user }: { user: any }) {
       .finally(() => setLoading(false));
   }, [user._id || user.id]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const withdrawAmount = parseInt(amount);
     
@@ -34,19 +34,17 @@ export function WithdrawFlow({ user }: { user: any }) {
       return;
     }
 
-    const txns = getTransactions();
-    const newTxn = {
-      id: `WD-${Math.floor(Math.random() * 10000)}`,
-      memberId: user.id,
-      type: 'withdraw',
-      amount: withdrawAmount,
-      date: new Date().toISOString(),
-      status: 'pending',
-      method
-    };
-    
-    saveTransactions([newTxn, ...txns]);
-    setStep(2);
+    try {
+      await api.post('/transactions', {
+        amount: withdrawAmount,
+        method,
+        type: 'withdraw',
+        reference: method === 'Cash at Branch' ? 'Cash at Branch' : accountDetails
+      });
+      setStep(2);
+    } catch (err: any) {
+      setError(err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to submit withdrawal request');
+    }
   };
 
   if (step === 2) {
@@ -140,6 +138,8 @@ export function WithdrawFlow({ user }: { user: any }) {
                 required
                 className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all dark:text-white"
                 placeholder={method === 'Bank Transfer' ? "Account Name, A/C No, Bank, Branch" : "Enter Mobile Number"}
+                value={accountDetails}
+                onChange={(e) => setAccountDetails(e.target.value)}
               />
             </div>
           )}

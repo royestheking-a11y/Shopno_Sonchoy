@@ -13,6 +13,12 @@ export function MasterWallet() {
   const [currentPlatformBalance, setCurrentPlatformBalance] = useState(0);
   const [loading, setLoading] = useState(true);
 
+  // Admin withdrawal state
+  const [withdrawAmount, setWithdrawAmount] = useState('');
+  const [withdrawReason, setWithdrawReason] = useState('');
+  const [withdrawStatus, setWithdrawStatus] = useState('');
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
+
   useEffect(() => {
     fetchWalletData();
   }, []);
@@ -39,6 +45,24 @@ export function MasterWallet() {
       console.error('Failed to fetch data', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleWithdraw = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!withdrawAmount || !withdrawReason) return;
+    setIsWithdrawing(true);
+    try {
+      await api.post('/masterwallets/withdraw', { amount: Number(withdrawAmount), reason: withdrawReason });
+      setWithdrawStatus('success');
+      setWithdrawAmount('');
+      setWithdrawReason('');
+      fetchWalletData();
+      setTimeout(() => setWithdrawStatus(''), 3000);
+    } catch (err: any) {
+      setWithdrawStatus(err.response?.data?.message || 'Withdrawal failed');
+    } finally {
+      setIsWithdrawing(false);
     }
   };
 
@@ -131,6 +155,31 @@ export function MasterWallet() {
             </div>
           </>
         )}
+      </div>
+
+      {/* Admin Withdrawal Section */}
+      <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 mt-6">
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Master Wallet Expense / Withdrawal</h2>
+        <form onSubmit={handleWithdraw} className="space-y-4 max-w-2xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Amount (৳)</label>
+              <input type="number" required value={withdrawAmount} onChange={e => setWithdrawAmount(e.target.value)} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none focus:border-primary dark:text-white" placeholder="e.g. 5000" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Reason / Details</label>
+              <input type="text" required value={withdrawReason} onChange={e => setWithdrawReason(e.target.value)} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none focus:border-primary dark:text-white" placeholder="e.g. Tour Expense" />
+            </div>
+          </div>
+          {withdrawStatus === 'success' ? (
+            <p className="text-sm text-green-500">Withdrawal / Expense recorded successfully!</p>
+          ) : withdrawStatus ? (
+            <p className="text-sm text-red-500">{withdrawStatus}</p>
+          ) : null}
+          <button type="submit" disabled={isWithdrawing} className="bg-primary text-white px-6 py-2.5 rounded-xl font-medium hover:bg-primary-dark transition-colors disabled:opacity-50">
+            {isWithdrawing ? 'Processing...' : 'Withdraw / Record Expense'}
+          </button>
+        </form>
       </div>
     </div>
   );

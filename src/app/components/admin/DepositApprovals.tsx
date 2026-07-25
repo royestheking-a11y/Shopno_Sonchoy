@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Search, Filter } from 'lucide-react';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
+import { generateDepositsReport } from '../../../utils/pdfGenerator';
 import { Skeleton } from '../ui/skeleton';
 
 export function DepositApprovals() {
@@ -55,6 +56,22 @@ export function DepositApprovals() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{t('admin_deposits.title')}</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">{t('admin_deposits.subtitle')}</p>
+        </div>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => generateDepositsReport(txns.filter(t => {
+                  if (filterStatus === 'pending') return t.status === 'pending';
+                  if (filterStatus === 'resolved') return t.status !== 'pending';
+                  return true;
+                }).filter(t => {
+                  if (!search) return true;
+                  const lower = search.toLowerCase();
+                  return t._id.toLowerCase().includes(lower) || getUserName(t.userId).toLowerCase().includes(lower);
+                }), t)} 
+            className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm"
+          >
+            Download PDF
+          </button>
         </div>
       </div>
 

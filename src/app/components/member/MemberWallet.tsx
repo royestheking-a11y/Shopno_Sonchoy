@@ -19,15 +19,22 @@ export function MemberWallet({ user }: { user: any }) {
 
   const fetchData = async () => {
     try {
-      const [authRes, depositsRes] = await Promise.all([
+      const [authRes, depositsRes, txnsRes] = await Promise.all([
         api.get(`/users/${user._id || user.id}`),
-        api.get('/deposits')
+        api.get('/deposits'),
+        api.get('/transactions')
       ]);
       setUserData(authRes.data);
-      setTxns(depositsRes.data
+      
+      const deposits = depositsRes.data
         .filter((t: any) => t.status === 'approved')
-        .map((t: any) => ({ ...t, type: 'deposit' }))
-        .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+        .map((t: any) => ({ ...t, type: 'deposit' }));
+        
+      const withdrawals = txnsRes.data
+        .filter((t: any) => t.status === 'approved' && t.type === 'withdraw')
+        .map((t: any) => ({ ...t, type: 'withdraw' }));
+
+      setTxns([...deposits, ...withdrawals].sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     } catch (err) {
       console.error('Failed to fetch wallet data', err);
     } finally {

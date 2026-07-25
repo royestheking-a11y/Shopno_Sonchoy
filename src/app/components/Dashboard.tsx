@@ -38,6 +38,7 @@ export function Dashboard() {
     currentFund: 0,
     todaysCollection: 0,
     currentInvestment: 0,
+    loanProfit: 0,
     recentDeposits: [] as any[],
     pendingApprovals: [] as any[]
   });
@@ -49,17 +50,19 @@ export function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const [usersRes, depositsRes, loansRes, walletRes] = await Promise.all([
+      const [usersRes, depositsRes, loansRes, walletRes, txnsRes] = await Promise.all([
         api.get('/users'),
         api.get('/deposits'),
         api.get('/loans'),
-        api.get('/masterwallets')
+        api.get('/masterwallets'),
+        api.get('/transactions')
       ]);
 
       const users = usersRes.data.filter((u: any) => u.role === 'member');
       const deposits = depositsRes.data;
       const loans = loansRes.data;
       const wallet = walletRes.data;
+      const txns = txnsRes.data;
 
       const currentFund = wallet?.balance || 0;
 
@@ -81,9 +84,12 @@ export function Dashboard() {
 
       const totalLoans = loans.filter((l: any) => ['approved', 'active'].includes(l.status)).reduce((sum: number, l: any) => sum + l.amount, 0);
 
-      const pendingTxns = deposits.filter((txn: any) => txn.status === 'pending').map((txn: any) => ({ ...txn, kind: t('admin_dashboard.deposit') }));
-      const pendingLoans = loans.filter((l: any) => l.status === 'pending').map((l: any) => ({ ...l, kind: t('admin_dashboard.loan_request') }));
-      const pendingApprovals = [...pendingTxns, ...pendingLoans]
+      const totalProfit = loans.filter((l: any) => ['approved', 'active', 'repaid'].includes(l.status)).reduce((sum: number, l: any) => sum + (l.amount * ((l.interestRate || 5) / 100)), 0);
+
+      const pendingDeposits = deposits.filter((txn: any) => txn.status === 'pending').map((txn: any) => ({ ...txn, kind: t('admin_dashboard.deposit'), isTxnRoute: false }));
+      const pendingWithdrawals = txns.filter((txn: any) => txn.status === 'pending' && txn.type === 'withdraw').map((txn: any) => ({ ...txn, kind: 'Withdrawal', isTxnRoute: true }));
+      const pendingLoans = loans.filter((l: any) => l.status === 'pending').map((l: any) => ({ ...l, kind: t('admin_dashboard.loan_request'), isTxnRoute: false }));
+      const pendingApprovals = [...pendingDeposits, ...pendingWithdrawals, ...pendingLoans]
         .sort((a: any, b: any) => new Date(b.date || b.requestDate).getTime() - new Date(a.date || a.requestDate).getTime())
         .slice(0, 3);
 
@@ -92,6 +98,7 @@ export function Dashboard() {
         currentFund,
         todaysCollection,
         currentInvestment: totalLoans,
+        loanProfit: totalProfit,
         recentDeposits,
         pendingApprovals
       });
@@ -107,6 +114,8 @@ export function Dashboard() {
     try {
       if (item.kind === t('admin_dashboard.loan_request')) {
         await api.put(`/loans/${item._id}/status`, { status: 'approved' });
+      } else if (item.isTxnRoute) {
+        await api.put(`/transactions/${item._id}/status`, { status: 'approved' });
       } else {
         await api.put(`/deposits/${item._id}/status`, { status: 'approved' });
       }
@@ -120,6 +129,8 @@ export function Dashboard() {
     try {
       if (item.kind === t('admin_dashboard.loan_request')) {
         await api.put(`/loans/${item._id}/status`, { status: 'rejected' });
+      } else if (item.isTxnRoute) {
+        await api.put(`/transactions/${item._id}/status`, { status: 'rejected' });
       } else {
         await api.put(`/deposits/${item._id}/status`, { status: 'rejected' });
       }
@@ -167,9 +178,9 @@ export function Dashboard() {
       </div>
 
       {/* Top Section - Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {loading ? (
-          Array.from({ length: 4 }).map((_, i) => (
+          Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 h-[160px] flex flex-col justify-between">
               <div className="flex justify-between items-start">
                 <div className="space-y-2">
@@ -214,6 +225,14 @@ export function Dashboard() {
               trendValue="1.4%" 
               icon={TrendingUp}
               colorClass="bg-amber-500/10 text-amber-500"
+            />
+            <StatCard 
+              title="Expected Loan Profit"
+              value={`৳ ${data.loanProfit.toLocaleString()}`} 
+              trend="up" 
+              trendValue="5.0%" 
+              icon={DollarSign}
+              colorClass="bg-green-500/10 text-green-500"
             />
           </>
         )}
@@ -348,6 +367,11 @@ export function Dashboard() {
                   <div>
                     <p className="text-sm font-medium text-slate-900 dark:text-white capitalize">{item.kind}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">{t('admin_dashboard.req_by')} {getUserName(item.userId)}</p>
+                    {item.reference && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        <span className="font-semibold text-slate-700 dark:text-slate-300">Details:</span> {item.reference}
+                      </p>
+                    )}
                   </div>
                   <p className="text-sm font-bold text-slate-900 dark:text-white">৳ {item.amount.toLocaleString()}</p>
                 </div>

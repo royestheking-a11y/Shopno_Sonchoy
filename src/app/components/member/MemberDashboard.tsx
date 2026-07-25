@@ -19,16 +19,18 @@ export function MemberDashboard({ user }: { user: any }) {
 
   const fetchData = async () => {
     try {
-      const [authRes, depositsRes, loansRes] = await Promise.all([
+      const [authRes, depositsRes, loansRes, txnsRes] = await Promise.all([
         api.get(`/users/${user._id || user.id}`),
         api.get('/deposits'),
-        api.get('/loans')
+        api.get('/loans'),
+        api.get('/transactions')
       ]);
 
       setUserData(authRes.data);
       const txns = [
         ...depositsRes.data.map((t: any) => ({ ...t, type: 'deposit', date: t.date })),
-        ...loansRes.data.map((t: any) => ({ ...t, type: 'loan request', date: t.requestDate }))
+        ...loansRes.data.map((t: any) => ({ ...t, type: 'loan request', date: t.requestDate })),
+        ...txnsRes.data.filter((t: any) => t.type === 'withdraw').map((t: any) => ({ ...t, type: 'withdraw', date: t.date }))
       ].sort((a: any, b: any) => {
         const dateA = new Date(a.date || a.createdAt || Date.now()).getTime();
         const dateB = new Date(b.date || b.createdAt || Date.now()).getTime();
