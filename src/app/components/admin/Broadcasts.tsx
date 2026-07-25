@@ -3,6 +3,7 @@ import { Megaphone, Trash2, Send, AlertCircle } from 'lucide-react';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '../ui/skeleton';
+import { motion, AnimatePresence } from 'motion/react';
 
 export function Broadcasts() {
   const { t } = useTranslation();
@@ -13,6 +14,7 @@ export function Broadcasts() {
   const [type, setType] = useState('info');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [broadcastToDelete, setBroadcastToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBroadcasts();
@@ -65,10 +67,15 @@ export function Broadcasts() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm(t('admin_broadcasts.delete_confirm'))) return;
+  const confirmDelete = (id: string) => {
+    setBroadcastToDelete(id);
+  };
+
+  const executeDelete = async () => {
+    if (!broadcastToDelete) return;
     try {
-      await api.delete(`/broadcasts/${id}`);
+      await api.delete(`/broadcasts/${broadcastToDelete}`);
+      setBroadcastToDelete(null);
       fetchBroadcasts();
     } catch (err) {
       console.error('Failed to delete broadcast', err);
@@ -192,7 +199,7 @@ export function Broadcasts() {
                       <h3 className="font-bold text-slate-900 dark:text-white">{b.title}</h3>
                     </div>
                     <button 
-                      onClick={() => handleDelete(b._id)}
+                      onClick={() => confirmDelete(b._id)}
                       className="text-slate-400 hover:text-danger p-1 rounded-lg transition-colors"
                       title="Delete"
                     >
@@ -212,6 +219,50 @@ export function Broadcasts() {
           )}
         </div>
       </div>
+
+      {/* Premium Delete Confirmation Modal */}
+      <AnimatePresence>
+        {broadcastToDelete && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              onClick={() => setBroadcastToDelete(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 dark:border-slate-700 flex flex-col items-center text-center"
+            >
+              <div className="w-16 h-16 bg-danger/10 text-danger rounded-full flex items-center justify-center mb-6 shadow-inner">
+                <AlertCircle size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Delete Broadcast</h3>
+              <p className="text-slate-500 dark:text-slate-400 font-medium mb-8">
+                {t('admin_broadcasts.delete_confirm')}
+              </p>
+              
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={() => setBroadcastToDelete(null)}
+                  className="flex-1 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold py-3.5 rounded-xl transition-all shadow-sm active:scale-95"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={executeDelete}
+                  className="flex-1 bg-danger hover:bg-red-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-md active:scale-95"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
