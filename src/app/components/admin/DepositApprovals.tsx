@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Search, Filter } from 'lucide-react';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
+import { Skeleton } from '../ui/skeleton';
 
 export function DepositApprovals() {
   const { t } = useTranslation();
   const [txns, setTxns] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -20,6 +22,8 @@ export function DepositApprovals() {
       setTxns(res.data);
     } catch (err) {
       console.error('Failed to fetch transactions', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -100,7 +104,27 @@ export function DepositApprovals() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E7EB] dark:divide-slate-700 text-sm">
-              {txns
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-24" /></td>
+                    <td className="px-6 py-4 space-y-2">
+                      <Skeleton className="h-4 w-28" />
+                      <Skeleton className="h-3 w-20" />
+                    </td>
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-20" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-16" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-32" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-6 w-20 rounded-full" /></td>
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end gap-2">
+                        <Skeleton className="h-8 w-8 rounded-md" />
+                        <Skeleton className="h-8 w-8 rounded-md" />
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : txns
                 .filter(t => {
                   if (filterStatus === 'pending') return t.status === 'pending';
                   if (filterStatus === 'resolved') return t.status !== 'pending';
@@ -146,7 +170,7 @@ export function DepositApprovals() {
                   </td>
                 </tr>
               ))}
-              {txns.length === 0 && (
+              {!loading && txns.length === 0 && (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center text-slate-500">{t('admin_deposits.no_deposits')}</td>
                 </tr>

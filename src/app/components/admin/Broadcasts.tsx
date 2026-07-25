@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Megaphone, Trash2, Send, AlertCircle } from 'lucide-react';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
+import { Skeleton } from '../ui/skeleton';
 
 export function Broadcasts() {
   const { t } = useTranslation();
   const [broadcasts, setBroadcasts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [type, setType] = useState('info');
@@ -22,6 +24,8 @@ export function Broadcasts() {
       setBroadcasts(res.data);
     } catch (err) {
       console.error('Failed to fetch broadcasts', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -132,7 +136,29 @@ export function Broadcasts() {
 
         <div className="lg:col-span-2 space-y-4">
           <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('admin_broadcasts.past_broadcasts')}</h2>
-          {broadcasts.length === 0 ? (
+          {loading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-white dark:bg-slate-800 rounded-2xl p-5 border border-[#E5E7EB] dark:border-slate-700 shadow-sm relative">
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-6 w-16 rounded-md" />
+                      <Skeleton className="h-5 w-40" />
+                    </div>
+                    <Skeleton className="h-6 w-6 rounded-lg" />
+                  </div>
+                  <div className="space-y-2 mt-4 mb-4">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </div>
+                  <div className="flex items-center gap-4 border-t border-[#E5E7EB] dark:border-slate-700 pt-3">
+                    <Skeleton className="h-3 w-32" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : broadcasts.length === 0 ? (
             <div className="bg-white dark:bg-slate-800 rounded-3xl p-8 border border-[#E5E7EB] dark:border-slate-700 text-center text-slate-500">
               {t('admin_broadcasts.no_broadcasts')}
             </div>

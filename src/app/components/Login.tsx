@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Mail, Lock, ArrowRight, Building2, Globe2, Fingerprint, ScanFace, Activity } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, ArrowRight, Building2, Globe2, Fingerprint, ScanFace, Activity, Eye, EyeOff } from 'lucide-react';
 import api from '../../utils/api';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ export function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loginMethod, setLoginMethod] = useState<'password' | 'biometric'>('password');
   const [isScanning, setIsScanning] = useState(false);
   const [scanSuccess, setScanSuccess] = useState(false);
@@ -21,7 +22,7 @@ export function Login() {
       localStorage.setItem('swapno_auth', JSON.stringify(response.data));
       window.location.href = '/';
     } catch (err: any) {
-      setError(err.response?.data?.message || t('login.error_invalid'));
+      setError(err.response?.data?.message || err.response?.data?.error || t('login.error_invalid'));
     }
   };
 
@@ -234,14 +235,21 @@ export function Login() {
                       </div>
                       <div className="relative">
                         <input
-                          type="password"
+                          type={showPassword ? "text" : "password"}
                           required
-                          className="w-full pl-12 pr-4 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm font-medium focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-300"
+                          className="w-full pl-12 pr-12 py-4 bg-slate-50/50 border border-slate-200 rounded-2xl text-sm font-medium focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all duration-300"
                           placeholder="••••••••"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                         />
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-500 transition-colors" size={20} />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors focus:outline-none"
+                        >
+                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        </button>
                       </div>
                     </div>
                   </div>

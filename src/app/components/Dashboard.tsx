@@ -5,6 +5,7 @@ import { cn } from './Layout';
 import api from '../../utils/api';
 import { useTranslation } from 'react-i18next';
 import { generateDashboardReport } from '../../utils/pdfGenerator';
+import { Skeleton } from './ui/skeleton';
 
 const StatCard = ({ title, value, trend, trendValue, icon: Icon, colorClass }: any) => (
   <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 flex flex-col justify-between">
@@ -40,6 +41,7 @@ export function Dashboard() {
     recentDeposits: [] as any[],
     pendingApprovals: [] as any[]
   });
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchData();
@@ -96,6 +98,8 @@ export function Dashboard() {
 
     } catch (err) {
       console.error('Failed to fetch dashboard data', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -164,38 +168,55 @@ export function Dashboard() {
 
       {/* Top Section - Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard 
-          title={t('admin_dashboard.current_fund')}
-          value={`৳ ${data.currentFund.toLocaleString()}`} 
-          trend="up" 
-          trendValue="12.5%" 
-          icon={DollarSign}
-          colorClass="bg-primary/10 text-primary"
-        />
-        <StatCard 
-          title={t('admin_dashboard.todays_collection')}
-          value={`৳ ${data.todaysCollection.toLocaleString()}`} 
-          trend="up" 
-          trendValue="8.2%" 
-          icon={Activity}
-          colorClass="bg-blue-500/10 text-blue-500"
-        />
-        <StatCard 
-          title={t('admin_dashboard.active_members')}
-          value={data.activeMembers.toString()} 
-          trend="up" 
-          trendValue="2.1%" 
-          icon={Users}
-          colorClass="bg-purple-500/10 text-purple-500"
-        />
-        <StatCard 
-          title={t('admin_dashboard.current_investment')}
-          value={`৳ ${data.currentInvestment.toLocaleString()}`} 
-          trend="up" 
-          trendValue="1.4%" 
-          icon={TrendingUp}
-          colorClass="bg-amber-500/10 text-amber-500"
-        />
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 h-[160px] flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-8 w-28" />
+                </div>
+                <Skeleton className="h-10 w-10 rounded-xl" />
+              </div>
+              <Skeleton className="h-4 w-32 mt-4" />
+            </div>
+          ))
+        ) : (
+          <>
+            <StatCard 
+              title={t('admin_dashboard.current_fund')}
+              value={`৳ ${data.currentFund.toLocaleString()}`} 
+              trend="up" 
+              trendValue="12.5%" 
+              icon={DollarSign}
+              colorClass="bg-primary/10 text-primary"
+            />
+            <StatCard 
+              title={t('admin_dashboard.todays_collection')}
+              value={`৳ ${data.todaysCollection.toLocaleString()}`} 
+              trend="up" 
+              trendValue="8.2%" 
+              icon={Activity}
+              colorClass="bg-blue-500/10 text-blue-500"
+            />
+            <StatCard 
+              title={t('admin_dashboard.active_members')}
+              value={data.activeMembers.toString()} 
+              trend="up" 
+              trendValue="2.1%" 
+              icon={Users}
+              colorClass="bg-purple-500/10 text-purple-500"
+            />
+            <StatCard 
+              title={t('admin_dashboard.current_investment')}
+              value={`৳ ${data.currentInvestment.toLocaleString()}`} 
+              trend="up" 
+              trendValue="1.4%" 
+              icon={TrendingUp}
+              colorClass="bg-amber-500/10 text-amber-500"
+            />
+          </>
+        )}
       </div>
 
       {/* Middle Section - Charts */}
@@ -203,47 +224,51 @@ export function Dashboard() {
         <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">{t('admin_dashboard.cash_flow')}</h3>
           <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={cashFlowData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <defs key="defs">
-                  <linearGradient id="colorIn" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                  </linearGradient>
-                  <linearGradient id="colorOut" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#EF4444" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#EF4444" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" className="dark:stroke-slate-700" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dx={-10} />
-                <Tooltip 
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  cursor={{ stroke: '#94A3B8', strokeWidth: 1, strokeDasharray: '4 4' }}
-                />
-                <Area type="monotone" dataKey="in" stroke="#10B981" strokeWidth={3} fillOpacity={1} fill="url(#colorIn)" />
-                <Area type="monotone" dataKey="out" stroke="#EF4444" strokeWidth={3} fillOpacity={1} fill="url(#colorOut)" />
-              </AreaChart>
-            </ResponsiveContainer>
+            {loading ? <Skeleton className="w-full h-full rounded-xl" /> : (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={cashFlowData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <defs key="defs">
+                    <linearGradient id="colorIn" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorOut" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#EF4444" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#EF4444" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" className="dark:stroke-slate-700" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dx={-10} />
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    cursor={{ stroke: '#94A3B8', strokeWidth: 1, strokeDasharray: '4 4' }}
+                  />
+                  <Area type="monotone" dataKey="in" stroke="#10B981" strokeWidth={3} fillOpacity={1} fill="url(#colorIn)" />
+                  <Area type="monotone" dataKey="out" stroke="#EF4444" strokeWidth={3} fillOpacity={1} fill="url(#colorOut)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700">
           <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-6">{t('admin_dashboard.monthly_savings')}</h3>
           <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={savingsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" className="dark:stroke-slate-700" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dx={-10} />
-                <Tooltip 
-                  cursor={{ fill: 'transparent' }}
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                />
-                <Bar dataKey="amount" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={40} />
-              </BarChart>
-            </ResponsiveContainer>
+            {loading ? <Skeleton className="w-full h-full rounded-xl" /> : (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={savingsData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" className="dark:stroke-slate-700" />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#64748B' }} dx={-10} />
+                  <Tooltip 
+                    cursor={{ fill: 'transparent' }}
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  />
+                  <Bar dataKey="amount" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
       </div>
@@ -255,7 +280,23 @@ export function Dashboard() {
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('admin_dashboard.recent_deposits')}</h3>
           </div>
           <div className="divide-y divide-[#E5E7EB] dark:divide-slate-700">
-            {data.recentDeposits.length === 0 ? (
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="px-6 py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <Skeleton className="w-10 h-10 rounded-full" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-3 w-32" />
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-right">
+                    <Skeleton className="h-4 w-16 ml-auto" />
+                    <Skeleton className="h-3 w-12 ml-auto" />
+                  </div>
+                </div>
+              ))
+            ) : data.recentDeposits.length === 0 ? (
               <div className="p-6 text-center text-slate-500">{t('admin_dashboard.no_recent_deposits')}</div>
             ) : data.recentDeposits.map((txn, i) => (
               <div key={txn._id} className="px-6 py-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
@@ -283,7 +324,23 @@ export function Dashboard() {
             <span className="bg-amber-100 text-amber-700 text-xs font-bold px-2 py-1 rounded-md">{data.pendingApprovals.length} {t('admin_dashboard.requests')}</span>
           </div>
           <div className="divide-y divide-[#E5E7EB] dark:divide-slate-700">
-            {data.pendingApprovals.length === 0 ? (
+            {loading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="px-6 py-4 flex flex-col gap-3">
+                  <div className="flex justify-between items-start">
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-3 w-28" />
+                    </div>
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                  <div className="flex gap-2">
+                    <Skeleton className="h-7 flex-1 rounded-md" />
+                    <Skeleton className="h-7 flex-1 rounded-md" />
+                  </div>
+                </div>
+              ))
+            ) : data.pendingApprovals.length === 0 ? (
                <div className="p-6 text-center text-slate-500">{t('admin_dashboard.no_pending_requests')}</div>
             ) : data.pendingApprovals.map((item, i) => (
               <div key={item._id} className="px-6 py-4 flex flex-col gap-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">

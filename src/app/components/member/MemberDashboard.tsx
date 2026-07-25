@@ -4,11 +4,13 @@ import { Wallet, PiggyBank, ArrowUpRight, ArrowDownRight, Clock, PlusCircle } fr
 import { cn } from '../Layout';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
+import { Skeleton } from '../ui/skeleton';
 
 export function MemberDashboard({ user }: { user: any }) {
   const [recentTxns, setRecentTxns] = useState<any[]>([]);
   const [totalDeposits, setTotalDeposits] = useState(0);
   const [userData, setUserData] = useState(user);
+  const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
 
   useEffect(() => {
@@ -40,6 +42,8 @@ export function MemberDashboard({ user }: { user: any }) {
       setTotalDeposits(total);
     } catch (err) {
       console.error('Failed to fetch dashboard data', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,56 +74,71 @@ export function MemberDashboard({ user }: { user: any }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-3xl shadow-xl border border-slate-700 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-6 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
-            <Wallet size={100} />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 text-slate-300 mb-2">
-              <Wallet size={18} />
-              <span className="font-medium text-sm">{t('dashboard.wallet_balance')}</span>
+        {loading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-xl border border-slate-700 h-[200px]">
+              <div className="flex items-center gap-3 mb-2">
+                <Skeleton className="w-5 h-5 rounded-md" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+              <Skeleton className="h-10 w-40 mb-6 mt-4" />
+              <Skeleton className="h-8 w-28 rounded-lg" />
             </div>
-            <h2 className="text-3xl font-bold text-white mb-6">৳ {(userData.balance || 0).toLocaleString()}</h2>
-            <div className="flex gap-2">
-              <button className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium backdrop-blur-md transition-colors border border-white/5">
-                {t('dashboard.statement')}
-              </button>
+          ))
+        ) : (
+          <>
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 p-6 rounded-3xl shadow-xl border border-slate-700 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-6 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
+                <Wallet size={100} />
+              </div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 text-slate-300 mb-2">
+                  <Wallet size={18} />
+                  <span className="font-medium text-sm">{t('dashboard.wallet_balance')}</span>
+                </div>
+                <h2 className="text-3xl font-bold text-white mb-6">৳ {(userData.balance || 0).toLocaleString()}</h2>
+                <div className="flex gap-2">
+                  <button className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium backdrop-blur-md transition-colors border border-white/5">
+                    {t('dashboard.statement')}
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div className="bg-gradient-to-br from-primary to-primary-dark p-6 rounded-3xl shadow-xl border border-primary-light/20 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-6 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
-            <PiggyBank size={100} />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 text-emerald-100 mb-2">
-              <PiggyBank size={18} />
-              <span className="font-medium text-sm">{t('dashboard.total_deposit')}</span>
+            <div className="bg-gradient-to-br from-primary to-primary-dark p-6 rounded-3xl shadow-xl border border-primary-light/20 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-6 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
+                <PiggyBank size={100} />
+              </div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 text-emerald-100 mb-2">
+                  <PiggyBank size={18} />
+                  <span className="font-medium text-sm">{t('dashboard.total_deposit')}</span>
+                </div>
+                <h2 className="text-3xl font-bold text-white mb-6">৳ {totalDeposits.toLocaleString()}</h2>
+                <div className="flex items-center gap-2 text-emerald-100 text-xs font-medium bg-white/10 w-fit px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white/5">
+                  <ArrowUpRight size={14} />
+                  {t('dashboard.all_time_approved')}
+                </div>
+              </div>
             </div>
-            <h2 className="text-3xl font-bold text-white mb-6">৳ {totalDeposits.toLocaleString()}</h2>
-            <div className="flex items-center gap-2 text-emerald-100 text-xs font-medium bg-white/10 w-fit px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white/5">
-              <ArrowUpRight size={14} />
-              {t('dashboard.all_time_approved')}
-            </div>
-          </div>
-        </div>
 
-        <div className="bg-gradient-to-br from-amber-500 to-amber-700 p-6 rounded-3xl shadow-xl border border-amber-400/20 relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-6 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
-            <Clock size={100} />
-          </div>
-          <div className="relative z-10">
-            <div className="flex items-center gap-3 text-amber-100 mb-2">
-              <Clock size={18} />
-              <span className="font-medium text-sm">{t('dashboard.total_loan')}</span>
+            <div className="bg-gradient-to-br from-amber-500 to-amber-700 p-6 rounded-3xl shadow-xl border border-amber-400/20 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 p-6 opacity-10 transform translate-x-4 -translate-y-4 group-hover:scale-110 transition-transform duration-500">
+                <Clock size={100} />
+              </div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 text-amber-100 mb-2">
+                  <Clock size={18} />
+                  <span className="font-medium text-sm">{t('dashboard.total_loan')}</span>
+                </div>
+                <h2 className="text-3xl font-bold text-white mb-6">৳ {(userData.loanBalance || 0).toLocaleString()}</h2>
+                <div className="flex items-center gap-2 text-amber-100 text-xs font-medium bg-white/10 w-fit px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white/5">
+                  {t('dashboard.repayment_pending')}
+                </div>
+              </div>
             </div>
-            <h2 className="text-3xl font-bold text-white mb-6">৳ {(userData.loanBalance || 0).toLocaleString()}</h2>
-            <div className="flex items-center gap-2 text-amber-100 text-xs font-medium bg-white/10 w-fit px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white/5">
-              {t('dashboard.repayment_pending')}
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -151,7 +170,23 @@ export function MemberDashboard({ user }: { user: any }) {
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('dashboard.recent_transactions')}</h3>
           </div>
           <div className="divide-y divide-[#E5E7EB] dark:divide-slate-700 flex-1 overflow-auto">
-            {recentTxns.length === 0 ? (
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="px-6 py-4 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <Skeleton className="w-10 h-10 rounded-xl" />
+                    <div className="space-y-2">
+                      <Skeleton className="h-4 w-20" />
+                      <Skeleton className="h-3 w-32" />
+                    </div>
+                  </div>
+                  <div className="space-y-2 flex flex-col items-end">
+                    <Skeleton className="h-4 w-16" />
+                    <Skeleton className="h-3 w-12" />
+                  </div>
+                </div>
+              ))
+            ) : recentTxns.length === 0 ? (
               <div className="py-12 text-center text-slate-500 dark:text-slate-400 flex flex-col items-center justify-center">
                 <Clock size={32} className="mb-3 opacity-20" />
                 <p>{t('dashboard.no_recent_activity')}</p>

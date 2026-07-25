@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { ArrowUpRight, ArrowDownRight, Search, Download, Filter } from 'lucide-react';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
+import { Skeleton } from '../ui/skeleton';
 
 export function Ledger() {
   const { t } = useTranslation();
   const [txns, setTxns] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('all');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -20,6 +22,8 @@ export function Ledger() {
       setTxns(res.data);
     } catch (err) {
       console.error('Failed to fetch ledger data', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -94,7 +98,26 @@ export function Ledger() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E7EB] dark:divide-slate-700 text-sm">
-              {filteredTxns.length === 0 ? (
+              {loading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <React.Fragment key={i}>
+                    <tr>
+                      <td className="px-6 py-4" rowSpan={2}><Skeleton className="h-4 w-20" /></td>
+                      <td className="px-6 py-4" rowSpan={2}><Skeleton className="h-4 w-24" /></td>
+                      <td className="px-6 py-3"><Skeleton className="h-4 w-32" /></td>
+                      <td className="px-6 py-3"><Skeleton className="h-4 w-40" /></td>
+                      <td className="px-6 py-3"><Skeleton className="h-4 w-16 ml-auto" /></td>
+                      <td className="px-6 py-3 text-right text-slate-500">-</td>
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-3 pl-10"><Skeleton className="h-4 w-32" /></td>
+                      <td className="px-6 py-3"><Skeleton className="h-4 w-40" /></td>
+                      <td className="px-6 py-3 text-right text-slate-500">-</td>
+                      <td className="px-6 py-3"><Skeleton className="h-4 w-16 ml-auto" /></td>
+                    </tr>
+                  </React.Fragment>
+                ))
+              ) : filteredTxns.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-slate-500">{t('admin_ledger.no_entries')}</td>
                 </tr>

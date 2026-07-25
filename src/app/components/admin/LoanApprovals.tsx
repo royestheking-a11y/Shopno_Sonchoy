@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Search } from 'lucide-react';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
+import { Skeleton } from '../ui/skeleton';
 
 export function LoanApprovals() {
   const { t } = useTranslation();
@@ -9,10 +10,15 @@ export function LoanApprovals() {
   const [repayments, setRepayments] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'requests' | 'repayments'>('requests');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchLoans();
-    fetchRepayments();
+    const loadData = async () => {
+      setLoading(true);
+      await Promise.all([fetchLoans(), fetchRepayments()]);
+      setLoading(false);
+    };
+    loadData();
   }, []);
 
   const fetchLoans = async () => {
@@ -125,7 +131,26 @@ export function LoanApprovals() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E5E7EB] dark:divide-slate-700 text-sm">
-                {loans
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i}>
+                      <td className="px-6 py-4"><Skeleton className="h-4 w-24" /></td>
+                      <td className="px-6 py-4 space-y-2">
+                        <Skeleton className="h-4 w-28" />
+                        <Skeleton className="h-3 w-20" />
+                      </td>
+                      <td className="px-6 py-4"><Skeleton className="h-4 w-20" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-4 w-20" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-6 w-24 rounded-full" /></td>
+                      <td className="px-6 py-4">
+                        <div className="flex justify-end gap-2">
+                          <Skeleton className="h-8 w-8 rounded-md" />
+                          <Skeleton className="h-8 w-8 rounded-md" />
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : loans
                   .filter(l => {
                     if (!search) return true;
                     const lower = search.toLowerCase();
@@ -169,7 +194,7 @@ export function LoanApprovals() {
                     </td>
                   </tr>
                 ))}
-                {loans.length === 0 && (
+                {!loading && loans.length === 0 && (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center text-slate-500">{t('admin_loans.no_loans')}</td>
                   </tr>
@@ -190,7 +215,24 @@ export function LoanApprovals() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E5E7EB] dark:divide-slate-700 text-sm">
-                {repayments
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i}>
+                      <td className="px-6 py-4"><Skeleton className="h-4 w-24" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-4 w-28" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-4 w-20" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-4 w-16" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-4 w-20" /></td>
+                      <td className="px-6 py-4"><Skeleton className="h-6 w-24 rounded-full" /></td>
+                      <td className="px-6 py-4">
+                        <div className="flex justify-end gap-2">
+                          <Skeleton className="h-8 w-8 rounded-md" />
+                          <Skeleton className="h-8 w-8 rounded-md" />
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : repayments
                   .filter(r => {
                     if (!search) return true;
                     const lower = search.toLowerCase();
@@ -234,7 +276,7 @@ export function LoanApprovals() {
                     </td>
                   </tr>
                 ))}
-                {repayments.length === 0 && (
+                {!loading && repayments.length === 0 && (
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center text-slate-500">{t('admin_loans.no_repayments')}</td>
                   </tr>

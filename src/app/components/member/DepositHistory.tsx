@@ -5,12 +5,14 @@ import autoTable from 'jspdf-autotable';
 import api from '../../../utils/api';
 import { cn } from '../Layout';
 import { useTranslation } from 'react-i18next';
+import { Skeleton } from '../ui/skeleton';
 
 export function DepositHistory({ user }: { user: any }) {
   const { t } = useTranslation();
   const [txns, setTxns] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchData();
@@ -28,6 +30,8 @@ export function DepositHistory({ user }: { user: any }) {
       setTxns(userTxns);
     } catch (err) {
       console.error('Failed to fetch deposit history', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,7 +142,18 @@ export function DepositHistory({ user }: { user: any }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E7EB] dark:divide-slate-700 text-sm">
-              {filteredTxns.length === 0 ? (
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-24" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-20" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-32" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-20" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-20" /></td>
+                    <td className="px-6 py-4 flex justify-end"><Skeleton className="h-6 w-20 rounded-full" /></td>
+                  </tr>
+                ))
+              ) : filteredTxns.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
                     <div className="flex flex-col items-center justify-center">

@@ -3,6 +3,7 @@ import { Search, Plus, MoreVertical, Filter, Download, Edit, Key, Trash2, X, Shi
 import { cn } from './Layout';
 import api from '../../utils/api';
 import { useTranslation } from 'react-i18next';
+import { Skeleton } from './ui/skeleton';
 
 // Simple Modal Component
 const Modal = ({ isOpen, onClose, title, children }: any) => {
@@ -27,6 +28,7 @@ const Modal = ({ isOpen, onClose, title, children }: any) => {
 export function Members() {
   const { t } = useTranslation();
   const [members, setMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   
   // Modals state
@@ -57,6 +59,8 @@ export function Members() {
       setMembers(res.data.filter((u: any) => u.role === 'member'));
     } catch (err) {
       console.error('Failed to fetch members', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -212,7 +216,28 @@ export function Members() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[#E5E7EB] dark:divide-slate-700 text-sm">
-              {filteredMembers.length === 0 ? (
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="w-10 h-10 rounded-full" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-4 w-32" />
+                          <Skeleton className="h-3 w-40" />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 space-y-2">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-3 w-28" />
+                    </td>
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-20" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-4 w-20" /></td>
+                    <td className="px-6 py-4"><Skeleton className="h-8 w-8 ml-auto rounded-lg" /></td>
+                  </tr>
+                ))
+              ) : filteredMembers.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
                     <ShieldCheck size={40} className="mx-auto mb-3 opacity-20" />
