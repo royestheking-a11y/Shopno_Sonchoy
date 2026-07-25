@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const User = require('./models/User');
 
-const uri = process.env.MONGODB_URI || "mongodb+srv://sonchoyshopno_db_user:iFT1QLuWc74qR4mV@cluster0.5ekca7f.mongodb.net/swapno_sonchoy?retryWrites=true&w=majority";
+const uri = process.env.MONGODB_URI || "mongodb+srv://sonchoyshopno_db_user:iFT1QLuWc74qR4mV@cluster0.5ekca7f.mongodb.net/shopno_sonchoy?retryWrites=true&w=majority";
 
 async function clearAndSeed() {
   try {

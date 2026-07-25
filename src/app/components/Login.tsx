@@ -20,7 +20,7 @@ export function Login() {
     e.preventDefault();
     try {
       const response = await api.post('/auth/login', { email, password });
-      localStorage.setItem('swapno_auth', JSON.stringify(response.data));
+      localStorage.setItem('shopno_auth', JSON.stringify(response.data));
       window.location.href = '/';
     } catch (err: any) {
       setError(err.response?.data?.message || err.response?.data?.error || t('login.error_invalid'));

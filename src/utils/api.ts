@@ -8,7 +8,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const auth = localStorage.getItem('swapno_auth');
+  const auth = localStorage.getItem('shopno_auth');
   if (auth) {
     const { token } = JSON.parse(auth);
     if (token) {

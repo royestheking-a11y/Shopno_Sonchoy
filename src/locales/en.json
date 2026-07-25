@@ -43,14 +43,14 @@
     "mark_read": "Mark Read"
   },
   "login": {
-    "brand_name": "SWAPNO SONCHOY",
+    "brand_name": "SHOPNO SONCHOY",
     "hero_title_1": "Enterprise Financial",
     "hero_title_2": "Management",
     "hero_desc": "Experience the next generation of secure, transparent, and comprehensive banking solutions designed for modern organizations.",
     "feature_1": "Multi-branch Operations",
     "feature_2": "Bank-grade Security",
     "feature_3": "Global Accessibility",
-    "copyright": "© {{year}} Swapno Sonchoy. All rights reserved.",
+    "copyright": "© {{year}} Shopno Sonchoy. All rights reserved.",
     "welcome_back": "Welcome Back",
     "sign_in_desc": "Please sign in to continue",
     "password_tab": "Password",
@@ -270,7 +270,7 @@
   },
   "member_deposit_flow": {
     "title": "Add Deposit",
-    "subtitle": "Securely add funds to your SWAPNO wallet.",
+    "subtitle": "Securely add funds to your SHOPNO wallet.",
     "wallet_balance": "Current Wallet Balance",
     "deposit_amount": "Deposit Amount (৳)",
     "payment_method": "Payment Method",

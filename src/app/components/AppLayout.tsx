@@ -88,7 +88,7 @@ export function AppLayout({ user }: { user: any }) {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('swapno_auth');
+    localStorage.removeItem('shopno_auth');
     window.location.href = '/';
   };
 
@@ -108,7 +108,7 @@ export function AppLayout({ user }: { user: any }) {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
               <span className="font-sans font-bold text-lg">S</span>
             </div>
-            SWAPNO
+            SHOPNO
           </div>
           <button 
             className="ml-auto md:hidden text-slate-500 hover:text-slate-700"

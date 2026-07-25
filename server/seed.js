@@ -14,7 +14,7 @@ const seed = async () => {
       memberId: 'A-001',
       role: 'admin',
       name: 'System Admin',
-      email: 'admin@swapno.com',
+      email: 'admin@shopno.com',
       password: 'password', // will be hashed by pre-save
       balance: 0,
       loanBalance: 0
@@ -24,7 +24,7 @@ const seed = async () => {
       memberId: 'M-1001',
       role: 'member',
       name: 'Rahim Uddin',
-      email: 'member@swapno.com',
+      email: 'member@shopno.com',
       password: 'password',
       phone: '01711000001',
       balance: 195000,

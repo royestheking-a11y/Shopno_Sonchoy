@@ -38,7 +38,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const authData = localStorage.getItem('swapno_auth');
+    const authData = localStorage.getItem('shopno_auth');
     if (authData) {
       try {
         const parsed = JSON.parse(authData);

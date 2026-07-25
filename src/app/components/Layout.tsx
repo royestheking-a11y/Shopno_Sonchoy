@@ -47,7 +47,7 @@ export function Layout() {
             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white">
               <span className="font-sans font-bold text-lg">S</span>
             </div>
-            SWAPNO
+            SHOPNO
           </div>
           <button 
             className="ml-auto md:hidden text-slate-500 hover:text-slate-700"
@@ -82,7 +82,7 @@ export function Layout() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">Admin User</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">admin@swapnosonchoy.com</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">admin@shopnosonchoy.com</p>
             </div>
           </div>
         </div>
