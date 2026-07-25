@@ -133,13 +133,14 @@ router.post('/:id/repay', verifyToken, async (req, res) => {
     const loan = await Loan.findById(req.params.id);
     if (!loan) return res.status(404).json({ message: 'Loan not found' });
     
-    const { amount, method } = req.body;
+    const { amount, method, reference } = req.body;
     
     const repayment = new LoanRepayment({
       loanId: loan._id,
       userId: loan.userId,
       amount,
       method,
+      reference,
       status: method === 'Wallet Balance' ? 'approved' : 'pending'
     });
 

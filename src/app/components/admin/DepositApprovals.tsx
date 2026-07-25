@@ -22,6 +22,7 @@ export function DepositApprovals() {
   const fetchTransactions = async () => {
     try {
       const res = await api.get('/deposits');
+      console.log('Deposits from API:', res.data);
       setTxns(res.data);
     } catch (err) {
       console.error('Failed to fetch transactions', err);
