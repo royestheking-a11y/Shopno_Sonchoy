@@ -227,7 +227,7 @@ export function Dashboard() {
               colorClass="bg-amber-500/10 text-amber-500"
             />
             <StatCard 
-              title="Expected Loan Profit"
+              title={t('admin_dashboard.loan_profit')}
               value={`৳ ${data.loanProfit.toLocaleString()}`} 
               trend="up" 
               trendValue="5.0%" 

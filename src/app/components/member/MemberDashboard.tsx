@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Link } from 'react-router-dom';
 import { Wallet, PiggyBank, ArrowUpRight, ArrowDownRight, Clock, PlusCircle } from 'lucide-react';
 import { cn } from '../Layout';
 import api from '../../../utils/api';
@@ -10,6 +11,7 @@ export function MemberDashboard({ user }: { user: any }) {
   const [recentTxns, setRecentTxns] = useState<any[]>([]);
   const [totalDeposits, setTotalDeposits] = useState(0);
   const [userData, setUserData] = useState(user);
+  const [profitShare, setProfitShare] = useState(0);
   const [loading, setLoading] = useState(true);
   const { t } = useTranslation();
 
@@ -19,11 +21,12 @@ export function MemberDashboard({ user }: { user: any }) {
 
   const fetchData = async () => {
     try {
-      const [authRes, depositsRes, loansRes, txnsRes] = await Promise.all([
+      const [authRes, depositsRes, loansRes, txnsRes, usersRes] = await Promise.all([
         api.get(`/users/${user._id || user.id}`),
         api.get('/deposits'),
         api.get('/loans'),
-        api.get('/transactions')
+        api.get('/transactions'),
+        api.get('/users')
       ]);
 
       setUserData(authRes.data);
@@ -42,6 +45,16 @@ export function MemberDashboard({ user }: { user: any }) {
         .filter((t: any) => t.type === 'deposit' && t.status === 'approved')
         .reduce((acc: number, curr: any) => acc + curr.amount, 0);
       setTotalDeposits(total);
+
+      // Profit Calculation
+      const loans = loansRes.data;
+      const totalProfit = loans.filter((l: any) => ['approved', 'active', 'repaid'].includes(l.status)).reduce((sum: number, l: any) => sum + (l.amount * ((l.interestRate || 5) / 100)), 0);
+      const activeMembers = usersRes.data.filter((u: any) => u.role === 'member').length;
+      if (activeMembers > 0) {
+        setProfitShare(Math.floor(totalProfit / activeMembers));
+      } else {
+        setProfitShare(0);
+      }
     } catch (err) {
       console.error('Failed to fetch dashboard data', err);
     } finally {
@@ -68,10 +81,10 @@ export function MemberDashboard({ user }: { user: any }) {
           <p className="text-sm text-slate-500 dark:text-slate-400">{t('dashboard.overview')}</p>
         </div>
         <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl text-sm font-medium transition-all shadow-md shadow-primary/20">
+          <Link to="/deposit" className="flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-xl text-sm font-medium transition-all shadow-md shadow-primary/20">
             <PlusCircle size={18} />
             {t('dashboard.quick_deposit')}
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -98,7 +111,12 @@ export function MemberDashboard({ user }: { user: any }) {
                   <Wallet size={18} />
                   <span className="font-medium text-sm">{t('dashboard.wallet_balance')}</span>
                 </div>
-                <h2 className="text-3xl font-bold text-white mb-6">৳ {(userData.balance || 0).toLocaleString()}</h2>
+                <h2 className="text-3xl font-bold text-white mb-2">৳ {((userData.balance || 0) + profitShare).toLocaleString()}</h2>
+                {profitShare > 0 && (
+                  <p className="text-xs text-emerald-400 font-medium mb-6 backdrop-blur-sm bg-black/10 w-fit px-2 py-1 rounded-md">
+                    + ৳ {profitShare.toLocaleString()} from profits
+                  </p>
+                )}
                 <div className="flex gap-2">
                   <button className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium backdrop-blur-md transition-colors border border-white/5">
                     {t('dashboard.statement')}
@@ -205,7 +223,7 @@ export function MemberDashboard({ user }: { user: any }) {
                     </div>
                     <div>
                       <p className="text-sm font-bold text-slate-900 dark:text-white capitalize">{txn.type}</p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(txn.date).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} • {txn.method}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(txn.date).toLocaleString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} • {txn.reference || txn._id}</p>
                     </div>
                   </div>
                   <div className="text-right">

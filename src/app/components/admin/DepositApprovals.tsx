@@ -155,7 +155,7 @@ export function DepositApprovals() {
                 .map(txn => (
                 <tr key={txn._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
                   <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
-                    <span className="block w-24 truncate" title={txn._id}>{txn._id}</span>
+                    <span className="block w-24 truncate" title={txn.reference || txn._id}>{txn.reference || txn._id}</span>
                   </td>
                   <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                     <div className="font-medium text-slate-900 dark:text-white">{getUserName(txn.userId)}</div>

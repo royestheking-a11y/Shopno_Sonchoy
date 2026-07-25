@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, Search } from 'lucide-react';
+import { CheckCircle, XCircle, Search, Eye } from 'lucide-react';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '../ui/skeleton';
@@ -12,6 +12,7 @@ export function LoanApprovals() {
   const [activeTab, setActiveTab] = useState<'requests' | 'repayments'>('requests');
   const [loading, setLoading] = useState(true);
   const [approvalModal, setApprovalModal] = useState<{ id: string, currentRate: number } | null>(null);
+  const [viewModal, setViewModal] = useState<{ title: string, details: string } | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -183,16 +184,21 @@ export function LoanApprovals() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {loan.status === 'pending' && (
-                        <div className="flex justify-end gap-2">
-                          <button onClick={() => setApprovalModal({ id: loan._id, currentRate: loan.interestRate || 5 })} className="p-1.5 bg-success/10 hover:bg-success/20 text-success rounded-md transition-colors" title={t('admin_loans.approve')}>
-                            <CheckCircle size={18} />
-                          </button>
-                          <button onClick={() => handleRejectLoan(loan._id)} className="p-1.5 bg-danger/10 hover:bg-danger/20 text-danger rounded-md transition-colors" title={t('admin_loans.reject')}>
-                            <XCircle size={18} />
-                          </button>
-                        </div>
-                      )}
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => setViewModal({ title: 'Loan Request Details', details: loan.purpose || 'No payment details provided.' })} className="p-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 rounded-md transition-colors" title="View Details">
+                          <Eye size={18} />
+                        </button>
+                        {loan.status === 'pending' && (
+                          <>
+                            <button onClick={() => setApprovalModal({ id: loan._id, currentRate: loan.interestRate || 5 })} className="p-1.5 bg-success/10 hover:bg-success/20 text-success rounded-md transition-colors" title={t('admin_loans.approve')}>
+                              <CheckCircle size={18} />
+                            </button>
+                            <button onClick={() => handleRejectLoan(loan._id)} className="p-1.5 bg-danger/10 hover:bg-danger/20 text-danger rounded-md transition-colors" title={t('admin_loans.reject')}>
+                              <XCircle size={18} />
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -265,16 +271,21 @@ export function LoanApprovals() {
                       )}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      {repayment.status === 'pending' && (
-                        <div className="flex justify-end gap-2">
-                          <button onClick={() => handleApproveRepayment(repayment._id)} className="p-1.5 bg-success/10 hover:bg-success/20 text-success rounded-md transition-colors" title={t('admin_loans.approve')}>
-                            <CheckCircle size={18} />
-                          </button>
-                          <button onClick={() => handleRejectRepayment(repayment._id)} className="p-1.5 bg-danger/10 hover:bg-danger/20 text-danger rounded-md transition-colors" title={t('admin_loans.reject')}>
-                            <XCircle size={18} />
-                          </button>
-                        </div>
-                      )}
+                      <div className="flex justify-end gap-2">
+                        <button onClick={() => setViewModal({ title: 'Repayment Details', details: repayment.method || 'No details provided.' })} className="p-1.5 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 rounded-md transition-colors" title="View Details">
+                          <Eye size={18} />
+                        </button>
+                        {repayment.status === 'pending' && (
+                          <>
+                            <button onClick={() => handleApproveRepayment(repayment._id)} className="p-1.5 bg-success/10 hover:bg-success/20 text-success rounded-md transition-colors" title={t('admin_loans.approve')}>
+                              <CheckCircle size={18} />
+                            </button>
+                            <button onClick={() => handleRejectRepayment(repayment._id)} className="p-1.5 bg-danger/10 hover:bg-danger/20 text-danger rounded-md transition-colors" title={t('admin_loans.reject')}>
+                              <XCircle size={18} />
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -314,6 +325,26 @@ export function LoanApprovals() {
                 className="px-5 py-2.5 text-sm font-medium bg-primary text-white hover:bg-primary-dark rounded-xl transition-colors"
               >
                 Confirm Approval
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Details Modal */}
+      {viewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 w-full max-w-sm shadow-xl border border-slate-200 dark:border-slate-700">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{viewModal.title}</h3>
+            <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-xl mb-6 text-sm text-slate-700 dark:text-slate-300 break-words border border-[#E5E7EB] dark:border-slate-700">
+              {viewModal.details}
+            </div>
+            <div className="flex justify-end">
+              <button 
+                onClick={() => setViewModal(null)}
+                className="px-5 py-2.5 text-sm font-medium bg-primary text-white hover:bg-primary-dark rounded-xl transition-colors"
+              >
+                Close
               </button>
             </div>
           </div>

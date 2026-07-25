@@ -7,7 +7,7 @@ import { Skeleton } from '../ui/skeleton';
 export function RepayLoan({ user }: { user: any }) {
   const { t } = useTranslation();
   const [amount, setAmount] = useState('');
-  const [method, setMethod] = useState('Wallet Balance');
+  const [method, setMethod] = useState('bKash');
   const [trxId, setTrxId] = useState('');
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
@@ -49,10 +49,6 @@ export function RepayLoan({ user }: { user: any }) {
       return;
     }
 
-    if (method === 'Wallet Balance' && repayAmount > (userData.balance || 0)) {
-      setError(t('member_repay_loan.error_funds'));
-      return;
-    }
 
     if (!activeLoanId) {
       setError(t('member_repay_loan.error_no_loan'));
@@ -63,7 +59,7 @@ export function RepayLoan({ user }: { user: any }) {
     try {
       await api.post(`/loans/${activeLoanId}/repay`, {
         amount: repayAmount,
-        method: method === 'Wallet Balance' ? 'Wallet Balance' : `${method} - ${trxId}`
+        method: method === 'Cash at Branch' ? 'Cash at Branch' : `${method} - ${trxId}`
       });
       setStep(2);
     } catch (err) {
@@ -137,7 +133,6 @@ export function RepayLoan({ user }: { user: any }) {
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">{t('member_repay_loan.method_label')}</label>
             <div className="grid grid-cols-2 gap-3">
               {[
-                { id: 'Wallet Balance', label: t('member_repay_loan.method_wallet') },
                 { id: 'bKash', label: t('member_repay_loan.method_bkash') },
                 { id: 'Bank Transfer', label: t('member_repay_loan.method_bank') },
                 { id: 'Cash at Branch', label: t('member_repay_loan.method_cash') }
@@ -156,12 +151,10 @@ export function RepayLoan({ user }: { user: any }) {
                 </button>
               ))}
             </div>
-            {method === 'Wallet Balance' && (
-              <p className="mt-2 text-xs text-slate-500">{t('member_repay_loan.wallet_balance_info', { balance: (userData.balance || 0).toLocaleString() })}</p>
-            )}
+
           </div>
 
-          {method !== 'Wallet Balance' && method !== 'Cash at Branch' && (
+          {method !== 'Cash at Branch' && (
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t('member_repay_loan.trx_id_label')}</label>
               <input

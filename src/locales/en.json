@@ -91,7 +91,8 @@
     "approve": "Approve",
     "reject": "Reject",
     "deposit": "deposit",
-    "loan_request": "loan request"
+    "loan_request": "loan request",
+    "loan_profit": "Loan Profit"
   },
   "admin_members": {
     "title": "Members & Accounts",

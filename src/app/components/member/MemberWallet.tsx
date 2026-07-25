@@ -150,7 +150,7 @@ export function MemberWallet({ user }: { user: any }) {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-slate-900 dark:text-white capitalize">{txn.type}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(txn.date).toLocaleDateString()} • {t('member_wallet.trx_id')} {txn._id}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{new Date(txn.date).toLocaleDateString()} • {t('member_wallet.trx_id')} {txn.reference || txn._id}</p>
                   </div>
                 </div>
                 <div className="text-right">
