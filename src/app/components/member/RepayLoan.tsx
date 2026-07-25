@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
+import { Skeleton } from '../ui/skeleton';
 
 export function RepayLoan({ user }: { user: any }) {
   const { t } = useTranslation();
@@ -13,6 +14,7 @@ export function RepayLoan({ user }: { user: any }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userData, setUserData] = useState(user);
   const [activeLoanId, setActiveLoanId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -26,6 +28,8 @@ export function RepayLoan({ user }: { user: any }) {
         }
       } catch (err) {
         console.error(err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -101,7 +105,11 @@ export function RepayLoan({ user }: { user: any }) {
         <div className="mb-6 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex justify-between items-center border border-amber-200 dark:border-amber-700/50">
           <div>
             <p className="text-sm font-medium text-amber-700 dark:text-amber-400">{t('member_repay_loan.outstanding_balance')}</p>
-            <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">৳ {(userData.loanBalance || 0).toLocaleString()}</p>
+            {loading ? (
+              <Skeleton className="h-8 w-32 mt-1" />
+            ) : (
+              <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">৳ {(userData.loanBalance || 0).toLocaleString()}</p>
+            )}
           </div>
         </div>
 

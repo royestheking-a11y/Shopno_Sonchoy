@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
+import { Skeleton } from '../ui/skeleton';
 
 export function LoanRequest({ user }: { user: any }) {
   const { t } = useTranslation();
@@ -12,10 +13,14 @@ export function LoanRequest({ user }: { user: any }) {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userData, setUserData] = useState(user);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Fetch latest user balance
-    api.get(`/users/${user._id || user.id}`).then(res => setUserData(res.data)).catch(console.error);
+    api.get(`/users/${user._id || user.id}`)
+      .then(res => setUserData(res.data))
+      .catch(console.error)
+      .finally(() => setLoading(false));
   }, [user._id || user.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,7 +79,11 @@ export function LoanRequest({ user }: { user: any }) {
         <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl flex justify-between items-center border border-[#E5E7EB] dark:border-slate-700">
           <div>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('member_loan_request.present_balance')}</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">৳ {(userData.balance || 0).toLocaleString()}</p>
+            {loading ? (
+              <Skeleton className="h-8 w-32 mt-1" />
+            ) : (
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">৳ {(userData.balance || 0).toLocaleString()}</p>
+            )}
           </div>
         </div>
 

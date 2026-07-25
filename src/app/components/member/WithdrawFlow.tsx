@@ -1,12 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import { getTransactions, saveTransactions } from '../../../utils/mockDb';
+import api from '../../../utils/api';
+import { Skeleton } from '../ui/skeleton';
 
 export function WithdrawFlow({ user }: { user: any }) {
   const [amount, setAmount] = useState('');
   const [method, setMethod] = useState('Bank Transfer');
   const [step, setStep] = useState(1);
   const [error, setError] = useState('');
+  const [userData, setUserData] = useState(user);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch latest user balance
+    api.get(`/users/${user._id || user.id}`)
+      .then(res => setUserData(res.data))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [user._id || user.id]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +29,7 @@ export function WithdrawFlow({ user }: { user: any }) {
       return;
     }
     
-    if (withdrawAmount > user.balance) {
+    if (withdrawAmount > (userData.balance || 0)) {
       setError('Insufficient wallet balance');
       return;
     }
@@ -68,7 +80,11 @@ export function WithdrawFlow({ user }: { user: any }) {
         <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl flex justify-between items-center border border-[#E5E7EB] dark:border-slate-700">
           <div>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Available Wallet Balance</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-white">৳ {user.balance.toLocaleString()}</p>
+            {loading ? (
+              <Skeleton className="h-8 w-32 mt-1" />
+            ) : (
+              <p className="text-2xl font-bold text-slate-900 dark:text-white">৳ {(userData.balance || 0).toLocaleString()}</p>
+            )}
           </div>
           <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
             <ArrowRight size={24} />

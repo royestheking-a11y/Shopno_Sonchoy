@@ -5,11 +5,13 @@ import autoTable from 'jspdf-autotable';
 import api from '../../../utils/api';
 import { cn } from '../Layout';
 import { useTranslation } from 'react-i18next';
+import { Skeleton } from '../ui/skeleton';
 
 export function MemberWallet({ user }: { user: any }) {
   const { t } = useTranslation();
   const [txns, setTxns] = useState<any[]>([]);
   const [userData, setUserData] = useState(user);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchData();
@@ -28,6 +30,8 @@ export function MemberWallet({ user }: { user: any }) {
         .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime()));
     } catch (err) {
       console.error('Failed to fetch wallet data', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -89,7 +93,11 @@ export function MemberWallet({ user }: { user: any }) {
         <div className="p-6 border-b border-[#E5E7EB] dark:border-slate-700 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
           <div>
             <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-1">{t('member_wallet.current_balance')}</p>
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">৳ {(userData.balance || 0).toLocaleString()}</h2>
+            {loading ? (
+              <Skeleton className="h-9 w-32" />
+            ) : (
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-white">৳ {(userData.balance || 0).toLocaleString()}</h2>
+            )}
           </div>
           <button 
             onClick={handleDownloadPDF}
@@ -101,7 +109,23 @@ export function MemberWallet({ user }: { user: any }) {
         </div>
 
         <div className="divide-y divide-[#E5E7EB] dark:divide-slate-700">
-          {txns.length === 0 ? (
+          {loading ? (
+            Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="px-6 py-4 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <Skeleton className="w-12 h-12 rounded-2xl" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-3 w-40" />
+                  </div>
+                </div>
+                <div className="space-y-2 flex flex-col items-end">
+                  <Skeleton className="h-5 w-24" />
+                  <Skeleton className="h-3 w-20" />
+                </div>
+              </div>
+            ))
+          ) : txns.length === 0 ? (
             <div className="p-12 text-center text-slate-500 dark:text-slate-400 flex flex-col items-center justify-center">
               <Clock size={48} className="mb-4 opacity-20" />
               <p className="text-lg font-medium text-slate-900 dark:text-white mb-1">{t('member_wallet.no_transactions')}</p>
