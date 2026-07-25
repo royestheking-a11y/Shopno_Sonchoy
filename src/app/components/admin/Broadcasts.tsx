@@ -40,7 +40,20 @@ export function Broadcasts() {
     setError('');
     
     try {
-      await api.post('/broadcasts', { title, message, type });
+      const { data: newBroadcast } = await api.post('/broadcasts', { title, message, type });
+      
+      // Also send Web Push Notification
+      try {
+        await api.post('/notifications/send', {
+          title: newBroadcast.title,
+          body: newBroadcast.message,
+          userId: 'all'
+        });
+      } catch (pushErr) {
+        console.error('Failed to send push notifications', pushErr);
+        // We don't fail the broadcast creation if push fails
+      }
+
       setTitle('');
       setMessage('');
       setType('info');

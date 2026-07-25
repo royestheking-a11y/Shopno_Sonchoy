@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 import api from '../../utils/api';
 import { io } from 'socket.io-client';
+import { subscribeUserToPush } from '../../utils/push';
 
 const ADMIN_SIDEBAR = [
   { icon: LayoutDashboard, label: 'sidebar.dashboard', path: '/' },
@@ -65,6 +66,21 @@ export function AppLayout({ user }: { user: any }) {
       socket.disconnect();
     };
   }, []);
+
+  // Subscribe to push notifications if permitted
+  useEffect(() => {
+    if (user && (user.id || user._id) && 'Notification' in window) {
+      if (Notification.permission === 'granted') {
+        subscribeUserToPush(user.id || user._id);
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            subscribeUserToPush(user.id || user._id);
+          }
+        });
+      }
+    }
+  }, [user]);
 
   const fetchBroadcasts = async () => {
     try {
