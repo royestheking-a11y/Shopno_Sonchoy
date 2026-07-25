@@ -231,7 +231,7 @@ export function Login() {
                     <div className="group relative">
                       <div className="flex justify-between items-center mb-2 ml-1 pr-1">
                         <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">{t('login.password_label')}</label>
-                        <a href="#" className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">{t('login.forgot_password')}</a>
+                        <button type="button" onClick={() => alert('Please contact admin for forgot password')} className="text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors">{t('login.forgot_password')}</button>
                       </div>
                       <div className="relative">
                         <input
