@@ -54,6 +54,40 @@ app.get('/api/ping', (req, res) => {
   res.status(200).send('pong');
 });
 
+// Test email route - for debugging email delivery
+app.get('/api/test-email', async (req, res) => {
+  const { sendEmail } = require('./utils/emailHelper');
+  try {
+    console.log('=== EMAIL TEST START ===');
+    console.log('ENV CHECK:');
+    console.log('  EMAILJS_SERVICE_ID:', process.env.EMAILJS_SERVICE_ID || 'NOT SET');
+    console.log('  EMAILJS_TEMPLATE_DEPOSIT:', process.env.EMAILJS_TEMPLATE_DEPOSIT || 'NOT SET');
+    console.log('  EMAILJS_PUBLIC_KEY:', process.env.EMAILJS_PUBLIC_KEY || 'NOT SET');
+    console.log('  EMAILJS_PRIVATE_KEY:', process.env.EMAILJS_PRIVATE_KEY ? 'SET (' + process.env.EMAILJS_PRIVATE_KEY.length + ' chars)' : 'NOT SET');
+    
+    const result = await sendEmail(process.env.EMAILJS_TEMPLATE_DEPOSIT, {
+      email: 'sonchoyshopno@gmail.com',
+      to_email: 'sonchoyshopno@gmail.com',
+      name: 'Test User',
+      amount: '1,000',
+      method: 'bKash',
+      transactionId: 'TEST-123',
+      date: new Date().toLocaleDateString(),
+      newBalance: '5,000'
+    });
+    console.log('=== EMAIL TEST SUCCESS ===');
+    res.json({ success: true, status: result?.status, data: result?.data });
+  } catch (err) {
+    console.error('=== EMAIL TEST FAILED ===');
+    console.error('Error:', err.response?.data || err.message);
+    res.status(500).json({ 
+      success: false, 
+      error: err.response?.data || err.message,
+      status: err.response?.status 
+    });
+  }
+});
+
 // Socket.io connection logging
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
