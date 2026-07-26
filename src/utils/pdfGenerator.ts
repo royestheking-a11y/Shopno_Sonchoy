@@ -157,7 +157,7 @@ export const generateDashboardReport = (data: any, t: any) => {
   doc.save(`Financial_Report_${new Date().toISOString().split('T')[0]}.pdf`);
 };
 
-export const generateMembersReport = (members: any[], t: any) => {
+export const generateMembersReport = (members: any[], t: any, profitShare: number = 0) => {
   const doc = new jsPDF();
   
   const brandName = "SHOPNO SONCHOY";
@@ -202,7 +202,7 @@ export const generateMembersReport = (members: any[], t: any) => {
     m.name || 'N/A',
     m.phone || 'N/A',
     m.email || 'N/A',
-    formatCurrency(m.balance || 0),
+    formatCurrency((m.balance || 0) + profitShare),
     formatCurrency(m.loanBalance || 0)
   ]);
 

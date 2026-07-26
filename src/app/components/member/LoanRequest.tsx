@@ -14,11 +14,19 @@ export function LoanRequest({ user }: { user: any }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userData, setUserData] = useState(user);
   const [loading, setLoading] = useState(true);
+  const [hasPending, setHasPending] = useState(false);
 
   useEffect(() => {
-    // Fetch latest user balance
-    api.get(`/users/${user._id || user.id}`)
-      .then(res => setUserData(res.data))
+    // Fetch latest user balance and check for pending loans
+    Promise.all([
+      api.get(`/users/${user._id || user.id}`),
+      api.get('/loans')
+    ])
+      .then(([authRes, loansRes]) => {
+        setUserData(authRes.data);
+        const pending = loansRes.data.some((l: any) => l.status === 'pending');
+        setHasPending(pending);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [user._id || user.id]);
@@ -27,8 +35,8 @@ export function LoanRequest({ user }: { user: any }) {
     e.preventDefault();
     const requestAmount = parseInt(amount);
     
-    if (!requestAmount || requestAmount <= 0) {
-      setError(t('member_loan_request.error_amount'));
+    if (!requestAmount || requestAmount < 500) {
+      setError('Minimum loan amount is 500');
       return;
     }
 
@@ -40,13 +48,27 @@ export function LoanRequest({ user }: { user: any }) {
         purpose: method === 'Cash at Branch' ? 'Cash Withdrawal' : `Payout via ${method} - ${accountDetails}`
       });
       setStep(2);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to submit loan request', err);
-      setError(t('member_loan_request.error_submit'));
+      setError(err.response?.data?.error || t('member_loan_request.error_submit'));
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (hasPending) {
+    return (
+      <div className="max-w-md mx-auto mt-12 bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 text-center">
+        <div className="w-20 h-20 bg-warning/10 text-warning rounded-full flex items-center justify-center mx-auto mb-6">
+          <AlertCircle size={40} />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Pending Request</h2>
+        <p className="text-slate-500 dark:text-slate-400 mb-8">
+          You already have a pending loan request. Please wait for the admin to approve it before submitting another one.
+        </p>
+      </div>
+    );
+  }
 
   if (step === 2) {
     return (

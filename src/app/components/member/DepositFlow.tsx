@@ -13,11 +13,19 @@ export function DepositFlow({ user }: { user: any }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userData, setUserData] = useState(user);
   const [loading, setLoading] = useState(true);
+  const [hasPending, setHasPending] = useState(false);
 
   useEffect(() => {
-    // Fetch latest user balance
-    api.get(`/users/${user._id || user.id}`)
-      .then(res => setUserData(res.data))
+    // Fetch latest user balance and check for pending deposits
+    Promise.all([
+      api.get(`/users/${user._id || user.id}`),
+      api.get('/deposits')
+    ])
+      .then(([authRes, depositsRes]) => {
+        setUserData(authRes.data);
+        const pending = depositsRes.data.some((d: any) => d.status === 'pending');
+        setHasPending(pending);
+      })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [user._id || user.id]);
@@ -36,13 +44,27 @@ export function DepositFlow({ user }: { user: any }) {
         reference: trxId
       });
       setStep(2);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to submit deposit', err);
-      alert(t('member_deposit_flow.failed_submit'));
+      alert(err.response?.data?.error || t('member_deposit_flow.failed_submit'));
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (hasPending) {
+    return (
+      <div className="max-w-md mx-auto mt-12 bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 text-center">
+        <div className="w-20 h-20 bg-warning/10 text-warning rounded-full flex items-center justify-center mx-auto mb-6">
+          <Info size={40} />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Pending Request</h2>
+        <p className="text-slate-500 dark:text-slate-400 mb-8">
+          You already have a pending deposit request. Please wait for the admin to approve it before submitting another one.
+        </p>
+      </div>
+    );
+  }
 
   if (step === 2) {
     return (
@@ -90,7 +112,7 @@ export function DepositFlow({ user }: { user: any }) {
             <input
               type="number"
               required
-              min="100"
+              min="500"
               className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-lg font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all dark:text-white"
               placeholder="e.g. 5000"
               value={amount}

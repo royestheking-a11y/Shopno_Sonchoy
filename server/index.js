@@ -49,6 +49,11 @@ app.use('/api/broadcasts', broadcastRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/transactions', transactionRoutes);
 
+// Health check / ping route for self-ping system
+app.get('/api/ping', (req, res) => {
+  res.status(200).send('pong');
+});
+
 // Socket.io connection logging
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
@@ -62,6 +67,23 @@ mongoose.connect(process.env.MONGODB_URI)
     console.log('Connected to MongoDB');
     server.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
+      
+      // Self-ping system to prevent sleep on Render
+      const PING_INTERVAL = 14 * 60 * 1000; // 14 minutes
+      // RENDER_EXTERNAL_URL is automatically provided by Render for web services
+      const RENDER_EXTERNAL_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+      
+      setInterval(() => {
+        const url = `${RENDER_EXTERNAL_URL}/api/ping`;
+        console.log(`Sending self-ping to ${url} to prevent sleep...`);
+        
+        const client = url.startsWith('https') ? require('https') : require('http');
+        client.get(url, (res) => {
+          console.log(`Self-ping successful. Status Code: ${res.statusCode}`);
+        }).on('error', (err) => {
+          console.error('Self-ping failed:', err.message);
+        });
+      }, PING_INTERVAL);
     });
   })
   .catch((error) => {

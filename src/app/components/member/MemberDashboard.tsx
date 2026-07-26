@@ -112,11 +112,16 @@ export function MemberDashboard({ user }: { user: any }) {
                   <span className="font-medium text-sm">{t('dashboard.wallet_balance')}</span>
                 </div>
                 <h2 className="text-3xl font-bold text-white mb-2">৳ {((userData.balance || 0) + profitShare).toLocaleString()}</h2>
-                {profitShare > 0 && (
-                  <p className="text-xs text-emerald-400 font-medium mb-6 backdrop-blur-sm bg-black/10 w-fit px-2 py-1 rounded-md">
-                    + ৳ {profitShare.toLocaleString()} from profits
+                <div className="flex flex-wrap gap-2 mb-6">
+                  <p className="text-xs text-blue-300 font-medium backdrop-blur-sm bg-black/10 w-fit px-2 py-1 rounded-md">
+                    ৳ {(userData.balance || 0).toLocaleString()} from deposits
                   </p>
-                )}
+                  {profitShare > 0 && (
+                    <p className="text-xs text-emerald-400 font-medium backdrop-blur-sm bg-black/10 w-fit px-2 py-1 rounded-md">
+                      + ৳ {profitShare.toLocaleString()} from profits
+                    </p>
+                  )}
+                </div>
                 <div className="flex gap-2">
                   <button className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium backdrop-blur-md transition-colors border border-white/5">
                     {t('dashboard.statement')}

@@ -37,6 +37,15 @@ router.get('/', verifyToken, async (req, res) => {
 // Request new loan
 router.post('/', verifyToken, async (req, res) => {
   try {
+    const existingPending = await Loan.findOne({ userId: req.user.id, status: 'pending' });
+    if (existingPending) {
+      return res.status(400).json({ error: 'You already have a pending loan request. Please wait for it to be processed.' });
+    }
+
+    if (!req.body.amount || req.body.amount < 500) {
+      return res.status(400).json({ error: 'Minimum loan amount is 500' });
+    }
+
     const loan = new Loan({
       userId: req.user.id,
       ...req.body

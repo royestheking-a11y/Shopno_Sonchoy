@@ -42,7 +42,9 @@ export function Dashboard() {
     currentInvestment: 0,
     loanProfit: 0,
     recentDeposits: [] as any[],
-    pendingApprovals: [] as any[]
+    pendingApprovals: [] as any[],
+    cashFlowData: [] as any[],
+    savingsData: [] as any[]
   });
   const [loading, setLoading] = useState(true);
 
@@ -95,6 +97,53 @@ export function Dashboard() {
         .sort((a: any, b: any) => new Date(b.date || b.requestDate).getTime() - new Date(a.date || a.requestDate).getTime())
         .slice(0, 3);
 
+      const cashFlowData = [];
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const m = d.getMonth();
+        const y = d.getFullYear();
+        
+        const depositsInMonth = deposits.filter((txn: any) => {
+          const dt = new Date(txn.date);
+          return txn.status === 'approved' && dt.getMonth() === m && dt.getFullYear() === y;
+        }).reduce((sum: number, txn: any) => sum + txn.amount, 0);
+        
+        const withdrawalsInMonth = txns.filter((txn: any) => {
+          const dt = new Date(txn.date);
+          return txn.type === 'withdraw' && txn.status === 'approved' && dt.getMonth() === m && dt.getFullYear() === y;
+        }).reduce((sum: number, txn: any) => sum + txn.amount, 0);
+
+        const loansInMonth = loans.filter((l: any) => {
+          const dt = new Date(l.requestDate || l.approvalDate || l.createdAt);
+          return ['approved', 'active', 'repaid'].includes(l.status) && dt.getMonth() === m && dt.getFullYear() === y;
+        }).reduce((sum: number, l: any) => sum + l.amount, 0);
+
+        cashFlowData.push({
+          name: monthNames[m],
+          in: depositsInMonth,
+          out: withdrawalsInMonth + loansInMonth
+        });
+      }
+
+      const savingsData = [
+        { name: 'Week 1', amount: 0 },
+        { name: 'Week 2', amount: 0 },
+        { name: 'Week 3', amount: 0 },
+        { name: 'Week 4', amount: 0 },
+      ];
+      
+      deposits.forEach((txn: any) => {
+        const dt = new Date(txn.date);
+        if (txn.status === 'approved' && dt.getMonth() === currentMonth && dt.getFullYear() === currentYear) {
+          const day = dt.getDate();
+          if (day <= 7) savingsData[0].amount += txn.amount;
+          else if (day <= 14) savingsData[1].amount += txn.amount;
+          else if (day <= 21) savingsData[2].amount += txn.amount;
+          else savingsData[3].amount += txn.amount;
+        }
+      });
+
       setData({
         activeMembers: users.length,
         currentFund,
@@ -102,7 +151,9 @@ export function Dashboard() {
         currentInvestment: totalLoans,
         loanProfit: totalProfit,
         recentDeposits,
-        pendingApprovals
+        pendingApprovals,
+        cashFlowData,
+        savingsData
       });
 
     } catch (err) {
@@ -145,22 +196,7 @@ export function Dashboard() {
   const getUserName = (userId: any) => userId?.name || t('admin_dashboard.unknown_user');
 
   // Mock data for charts as we don't have historical aggregates yet
-  const cashFlowData = [
-    { name: 'Jan', in: 4000, out: 2400 },
-    { name: 'Feb', in: 3000, out: 1398 },
-    { name: 'Mar', in: 2000, out: 9800 },
-    { name: 'Apr', in: 2780, out: 3908 },
-    { name: 'May', in: 1890, out: 4800 },
-    { name: 'Jun', in: 2390, out: 3800 },
-    { name: 'Jul', in: 3490, out: 4300 },
-  ];
-
-  const savingsData = [
-    { name: 'Week 1', amount: 400 },
-    { name: 'Week 2', amount: 300 },
-    { name: 'Week 3', amount: 550 },
-    { name: 'Week 4', amount: 450 },
-  ];
+  const { cashFlowData, savingsData } = data;
 
   return (
     <div className="space-y-6">

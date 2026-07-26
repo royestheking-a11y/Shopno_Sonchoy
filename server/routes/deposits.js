@@ -24,6 +24,15 @@ router.get('/', verifyToken, async (req, res) => {
 // Create new deposit
 router.post('/', verifyToken, async (req, res) => {
   try {
+    const existingPending = await Deposit.findOne({ userId: req.user.id, status: 'pending' });
+    if (existingPending) {
+      return res.status(400).json({ error: 'You already have a pending deposit request. Please wait for it to be processed.' });
+    }
+
+    if (!req.body.amount || req.body.amount < 500) {
+      return res.status(400).json({ error: 'Minimum deposit amount is 500' });
+    }
+
     const deposit = new Deposit({
       userId: req.user.id,
       ...req.body

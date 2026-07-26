@@ -31,6 +31,7 @@ export function Members() {
   const { t } = useTranslation();
   const { updateTicker } = useSocket();
   const [members, setMembers] = useState<any[]>([]);
+  const [profitShare, setProfitShare] = useState(0);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   
@@ -60,8 +61,18 @@ export function Members() {
 
   const fetchMembers = async () => {
     try {
-      const res = await api.get('/users');
+      const [res, profitRes] = await Promise.all([
+        api.get('/users'),
+        api.get('/loans/system-profit')
+      ]);
       setMembers(res.data.filter((u: any) => u.role === 'member'));
+      
+      const { totalProfit, activeMembers } = profitRes.data;
+      if (activeMembers > 0) {
+        setProfitShare(parseFloat((totalProfit / activeMembers).toFixed(2)));
+      } else {
+        setProfitShare(0);
+      }
     } catch (err) {
       console.error('Failed to fetch members', err);
     } finally {
@@ -192,7 +203,7 @@ export function Members() {
           <p className="text-sm text-slate-500 dark:text-slate-400">{t('admin_members.subtitle')}</p>
         </div>
         <div className="flex gap-3">
-          <button onClick={() => generateMembersReport(filteredMembers, t)} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
+          <button onClick={() => generateMembersReport(filteredMembers, t, profitShare)} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm">
             <Download size={16} /> {t('admin_members.export')}
           </button>
           <button 
@@ -294,7 +305,16 @@ export function Members() {
                     <span className="font-medium text-slate-900 dark:text-slate-300 block">{member.memberId}</span>
                     <span className="text-xs text-slate-500">{member.phone || t('admin_members.no_phone')}</span>
                   </td>
-                  <td className="px-6 py-4 font-bold text-success">৳ {(member.balance || 0).toLocaleString()}</td>
+                  <td className="px-6 py-4 font-bold text-success">
+                    <div className="flex flex-col">
+                      <span>৳ {((member.balance || 0) + profitShare).toLocaleString()}</span>
+                      {profitShare > 0 && (
+                         <span className="text-[10px] font-medium text-emerald-600/70 dark:text-emerald-400/70">
+                           +৳ {profitShare.toLocaleString()} profit
+                         </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-6 py-4 font-bold text-amber-600">৳ {(member.loanBalance || 0).toLocaleString()}</td>
                   <td className="px-6 py-4 text-right relative">
                     <button 
