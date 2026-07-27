@@ -133,7 +133,7 @@
     "reset_warning": "You are about to force reset the password for ",
     "lbl_new_password": "New Password",
     "confirm_reset": "Confirm Password Reset",
-    "alert_reset_backend": "Password reset requires backend implementation in this version."
+    "alert_reset_backend": "Password updated successfully!"
   },
   "admin_deposits": {
     "title": "Deposit Approvals",

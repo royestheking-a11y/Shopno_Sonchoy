@@ -163,11 +163,16 @@ export function Members() {
 
   const handleSavePassword = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.password || formData.password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
     try {
-      await api.put(`/users/${selectedMember._id}/password`, {
+      const memberId = selectedMember._id || selectedMember.id;
+      await api.put(`/users/${memberId}/password`, {
         newPassword: formData.password
       });
-      toast.success(t('admin_members.alert_reset_backend') || 'Password updated successfully');
+      toast.success(t('admin_members.alert_reset_backend') || 'Password updated successfully!');
       setIsPasswordModalOpen(false);
     } catch (err: any) {
       console.error('Failed to reset password', err);
