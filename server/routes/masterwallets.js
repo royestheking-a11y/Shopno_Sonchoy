@@ -57,4 +57,20 @@ router.post('/withdraw', verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
+// Get withdrawal & expense history
+router.get('/withdrawals', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const Transaction = require('../models/Transaction');
+    const withdrawals = await Transaction.find({ type: 'admin_withdrawal' })
+      .populate('userId', 'name memberId email')
+      .sort({ createdAt: -1 });
+
+    const totalWithdrawn = withdrawals.reduce((sum, w) => sum + (Number(w.amount) || 0), 0);
+
+    res.json({ withdrawals, totalWithdrawn });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
