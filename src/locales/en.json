@@ -16,9 +16,10 @@
     "loan_approvals": "Loan Approvals",
     "master_wallet": "Master Wallet",
     "ledger": "Ledger",
-    "reports": "Reports",
+    "reports": "Reports & Analytics",
     "broadcasts": "Broadcasts",
-    "monthly_closing": "Monthly Closing"
+    "monthly_closing": "Monthly Closing",
+    "loan_history": "Loan History"
   },
   "dashboard": {
     "welcome": "Welcome, {{name}}!",
@@ -214,19 +215,30 @@
     "record_desc": "To record"
   },
   "admin_reports": {
-    "title": "System Reports",
-    "subtitle": "Generate and export platform analytics.",
+    "title": "System Reports & Financial Analytics",
+    "subtitle": "Detailed breakdown of member deposits, loan disbursements, repayments, and master wallet expenses.",
+    "filter_year": "Filter Year:",
+    "lifetime_deposits": "Lifetime Member Deposits",
+    "lifetime_loans": "Total Loan Capital",
+    "master_expenses": "Master Wallet Withdrawals",
+    "active_members": "Registered Members",
+    "monthly_breakdown": "Monthly Financial Breakdown",
+    "payment_distribution": "Payment Method Distribution",
+    "download_pdf": "Download Exportable PDF Statements",
     "member_report": "Member Report",
-    "active_members": "Active Members",
     "collection_report": "Collection Report",
-    "all_deposits": "All Deposit Transactions",
     "loan_report": "Loan Report",
-    "disbursements_interest": "Disbursements & Interest",
     "audit_report": "Audit Report",
+    "all_deposits": "All Deposit Transactions",
+    "disbursements_interest": "Disbursements & Interest",
     "ledger_journals": "Ledger & Journals",
-    "volume_analytics": "Volume Analytics (Deposits vs Loans)",
+    "master_audit": "Master Transaction Audit (Part by Part)",
+    "all_transactions": "All Transactions",
     "deposits": "Deposits",
-    "loans_disbursed": "Loans Disbursed"
+    "loan_repayments": "Loan Repayments",
+    "expenses": "Expenses",
+    "all_gateways": "All Gateways",
+    "no_transactions": "No Transactions Found"
   },
   "admin_monthly_closing": {
     "title": "Monthly Closing",
@@ -405,5 +417,17 @@
     "marketing_updates": "Marketing Updates",
     "marketing_updates_desc": "Receive news about new features and savings plans.",
     "save_changes": "Save Changes"
+  },
+  "member_loan_history": {
+    "title": "Loan History",
+    "subtitle": "View your previous and active loan requests.",
+    "no_history": "You have no loan history.",
+    "interest": "Interest Rate",
+    "purpose_general": "General Loan",
+    "status_approved": "Approved",
+    "status_active": "Active",
+    "status_repaid": "Repaid",
+    "status_rejected": "Rejected",
+    "status_pending": "Pending Approval"
   }
 }

@@ -16,9 +16,10 @@
     "loan_approvals": "লোন অনুমোদন",
     "master_wallet": "মাস্টার ওয়ালেট",
     "ledger": "লেজার",
-    "reports": "রিপোর্ট",
+    "reports": "রিপোর্ট ও এনালাইটিক্স",
     "broadcasts": "ব্রডকাস্ট",
-    "monthly_closing": "মাসিক সমাপনী"
+    "monthly_closing": "মাসিক সমাপনী",
+    "loan_history": "ঋণের ইতিহাস"
   },
   "dashboard": {
     "welcome": "স্বাগতম, {{name}}!",
@@ -213,19 +214,30 @@
     "record_desc": "রেকর্ড করতে"
   },
   "admin_reports": {
-    "title": "সিস্টেম রিপোর্ট",
-    "subtitle": "প্ল্যাটফর্ম অ্যানালিটিক্স তৈরি এবং এক্সপোর্ট করুন।",
+    "title": "সিস্টেম রিপোর্ট ও ফাইনান্সিয়াল এনালাইটিক্স",
+    "subtitle": "সদস্য ডিপোজিট, লোন বিতরণ, রিপেমেন্ট এবং মাস্টার ওয়ালেট খরচের বিস্তারিত বিবরণ।",
+    "filter_year": "বছর ফিল্টার:",
+    "lifetime_deposits": "সর্বমোট সদস্য ডিপোজিট",
+    "lifetime_loans": "মোট লোন বিতরণ",
+    "master_expenses": "মাস্টার ওয়ালেট উত্তোলন",
+    "active_members": "নিবন্ধিত সদস্য",
+    "monthly_breakdown": "মাসিক ফাইনান্সিয়াল বিবরণী",
+    "payment_distribution": "পেমেন্ট মেথড ডিস্ট্রিবিউশন",
+    "download_pdf": "পিডিএফ স্টেটমেন্ট ডাউনলোড করুন",
     "member_report": "সদস্য রিপোর্ট",
-    "active_members": "সক্রিয় সদস্য",
     "collection_report": "সংগ্রহ রিপোর্ট",
-    "all_deposits": "সমস্ত ডিপোজিট ট্রানজ্যাকশন",
     "loan_report": "লোন রিপোর্ট",
-    "disbursements_interest": "বিতরণ এবং সুদ",
     "audit_report": "অডিট রিপোর্ট",
+    "all_deposits": "সমস্ত ডিপোজিট ট্রানজ্যাকশন",
+    "disbursements_interest": "বিতরণ এবং সুদ",
     "ledger_journals": "লেজার এবং জার্নাল",
-    "volume_analytics": "ভলিউম অ্যানালিটিক্স (ডিপোজিট বনাম লোন)",
-    "deposits": "ডিপোজিট",
-    "loans_disbursed": "প্রদানকৃত লোন"
+    "master_audit": "মাস্টার ট্রানজ্যাকশন অডিট (পার্ট বাই পার্ট)",
+    "all_transactions": "সকল ট্রানজ্যাকশন",
+    "deposits": "ডিপোজিটসমূহ",
+    "loan_repayments": "লোন রিপেমেন্টসমূহ",
+    "expenses": "খরচসমূহ",
+    "all_gateways": "সকল গেটওয়ে",
+    "no_transactions": "কোনো ট্রানজ্যাকশন পাওয়া যায়নি"
   },
   "admin_monthly_closing": {
     "title": "মাসিক ক্লোজিং",
@@ -404,5 +416,17 @@
     "marketing_updates": "মার্কেটিং আপডেট",
     "marketing_updates_desc": "নতুন ফিচার এবং সঞ্চয় প্ল্যান সম্পর্কে খবর পান।",
     "save_changes": "পরিবর্তনগুলো সেভ করুন"
+  },
+  "member_loan_history": {
+    "title": "ঋণের ইতিহাস",
+    "subtitle": "আপনার পূর্ববর্তী এবং বর্তমান ঋণের আবেদনসমূহ দেখুন।",
+    "no_history": "আপনার কোন ঋণের ইতিহাস নেই।",
+    "interest": "সুদের হার",
+    "purpose_general": "সাধারণ লোন",
+    "status_approved": "অনুমোদিত",
+    "status_active": "সক্রিয়",
+    "status_repaid": "পরিশোধিত",
+    "status_rejected": "বাতিলকৃত",
+    "status_pending": "অনুমোদনের অপেক্ষায়"
   }
 }

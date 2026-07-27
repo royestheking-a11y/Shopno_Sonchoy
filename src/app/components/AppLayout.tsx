@@ -31,7 +31,7 @@ const MEMBER_SIDEBAR = [
   { icon: PlusCircle, label: 'sidebar.deposit', path: '/deposit' },
   { icon: History, label: 'sidebar.deposit_history', path: '/deposit-history' },
   { icon: Landmark, label: 'sidebar.loan', path: '/request-loan' },
-  { icon: History, label: 'Loan History', path: '/loan-history' },
+  { icon: History, label: 'sidebar.loan_history', path: '/loan-history' },
   { icon: FileText, label: 'sidebar.repay', path: '/repay-loan' },
   { icon: BookOpen, label: 'sidebar.rules', path: '/rules' },
   { icon: Settings, label: 'sidebar.settings', path: '/settings' },

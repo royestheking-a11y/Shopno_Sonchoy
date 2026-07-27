@@ -272,12 +272,12 @@ export function Reports() {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{t('admin_reports.title')} & Financial Analytics</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Detailed breakdown of member deposits, loan disbursements, repayments, and master wallet expenses.</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{t('admin_reports.title')}</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{t('admin_reports.subtitle')}</p>
         </div>
 
         <div className="flex items-center gap-2">
-          <label className="text-xs font-semibold text-slate-500 uppercase">Filter Year:</label>
+          <label className="text-xs font-semibold text-slate-500 uppercase">{t('admin_reports.filter_year')}</label>
           <select 
             value={selectedYear}
             onChange={e => setSelectedYear(Number(e.target.value))}
@@ -308,10 +308,10 @@ export function Reports() {
                   <ArrowDownRight size={24} />
                 </div>
                 <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
-                  Total Deposits
+                  {t('admin_reports.deposits')}
                 </span>
               </div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Lifetime Member Deposits</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('admin_reports.lifetime_deposits')}</p>
               <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">৳ {totalDepositsVolume.toLocaleString()}</h3>
               <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700/60">
                 <span>Monthly: <strong className="text-emerald-600 dark:text-emerald-400">৳ {monthlyDeposits.toLocaleString()}</strong></span>
@@ -326,14 +326,14 @@ export function Reports() {
                   <TrendingUp size={24} />
                 </div>
                 <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 uppercase tracking-wider">
-                  Disbursed
+                  {t('admin_reports.loan_report')}
                 </span>
               </div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Total Loan Capital</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('admin_reports.lifetime_loans')}</p>
               <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">৳ {totalLoansDisbursed.toLocaleString()}</h3>
               <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700/60">
                 <span>Repaid: <strong className="text-emerald-600 dark:text-emerald-400">৳ {totalRepaymentsVolume.toLocaleString()}</strong></span>
-                <span>Yearly Loans: <strong className="text-slate-900 dark:text-white">৳ {yearlyLoans.toLocaleString()}</strong></span>
+                <span>Yearly: <strong className="text-slate-900 dark:text-white">৳ {yearlyLoans.toLocaleString()}</strong></span>
               </div>
             </div>
 
@@ -344,10 +344,10 @@ export function Reports() {
                   <ArrowUpRight size={24} />
                 </div>
                 <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 uppercase tracking-wider">
-                  Expenses
+                  {t('admin_reports.expenses')}
                 </span>
               </div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Master Wallet Withdrawals</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('admin_reports.master_expenses')}</p>
               <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">৳ {totalExpensesVolume.toLocaleString()}</h3>
               <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700/60">
                 <span>Logs Recorded: <strong className="text-slate-900 dark:text-white">{withdrawals.length}</strong></span>
@@ -365,8 +365,8 @@ export function Reports() {
                   Active
                 </span>
               </div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Registered Members</p>
-              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">{members.length} Members</h3>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('admin_reports.active_members')}</p>
+              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">{members.length}</h3>
               <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700/60">
                 <span>System Status: <strong className="text-emerald-500 font-bold">100% Healthy</strong></span>
               </div>
@@ -381,7 +381,7 @@ export function Reports() {
         <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-premium border border-[#E5E7EB] dark:border-slate-700">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Monthly Financial Breakdown ({selectedYear})</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('admin_reports.monthly_breakdown')} ({selectedYear})</h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">Live comparison of member deposits, loan disbursements, and repayments month by month.</p>
             </div>
           </div>
@@ -400,9 +400,9 @@ export function Reports() {
                     contentStyle={{ borderRadius: '12px', border: '1px solid #E5E7EB', boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)' }}
                   />
                   <Legend wrapperStyle={{ paddingTop: 10, fontSize: 12 }} />
-                  <Bar dataKey="Deposits" name="Member Deposits" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={30} />
-                  <Bar dataKey="Loans" name="Loans Disbursed" fill="#F59E0B" radius={[4, 4, 0, 0]} maxBarSize={30} />
-                  <Bar dataKey="Repayments" name="Loan Repayments" fill="#0F6FFF" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                  <Bar dataKey="Deposits" name={t('admin_reports.deposits')} fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                  <Bar dataKey="Loans" name={t('admin_reports.loan_report')} fill="#F59E0B" radius={[4, 4, 0, 0]} maxBarSize={30} />
+                  <Bar dataKey="Repayments" name={t('admin_reports.loan_repayments')} fill="#0F6FFF" radius={[4, 4, 0, 0]} maxBarSize={30} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -414,7 +414,7 @@ export function Reports() {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <CreditCard size={20} className="text-primary" />
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white">Payment Method Distribution</h3>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('admin_reports.payment_distribution')}</h3>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">Percentage share of total deposits processed by payment gateway.</p>
 
@@ -474,7 +474,7 @@ export function Reports() {
 
       {/* Export PDF Reports Section */}
       <div>
-        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Download Exportable PDF Statements</h2>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-3">{t('admin_reports.download_pdf')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div onClick={handleDownloadMember} className={`bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 flex justify-between items-center group cursor-pointer hover:border-primary transition-colors ${isDownloading === 'member' ? 'opacity-50 pointer-events-none' : ''}`}>
             <div>
@@ -528,7 +528,7 @@ export function Reports() {
         <div className="p-6 border-b border-[#E5E7EB] dark:border-slate-700 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">Master Transaction Audit (Part by Part)</h2>
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('admin_reports.master_audit')}</h2>
               <p className="text-xs text-slate-500 dark:text-slate-400">Complete breakdown of every deposit, loan repayment, and master wallet expense.</p>
             </div>
 
@@ -555,7 +555,7 @@ export function Reports() {
                   activeTypeFilter === 'all' ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                All Transactions ({unifiedTransactions.length})
+                {t('admin_reports.all_transactions')} ({unifiedTransactions.length})
               </button>
               <button
                 onClick={() => setActiveTypeFilter('deposit')}
@@ -563,7 +563,7 @@ export function Reports() {
                   activeTypeFilter === 'deposit' ? 'bg-emerald-500 text-white shadow-sm' : 'text-slate-500 hover:text-emerald-600'
                 }`}
               >
-                Deposits ({approvedDeposits.length})
+                {t('admin_reports.deposits')} ({approvedDeposits.length})
               </button>
               <button
                 onClick={() => setActiveTypeFilter('repayment')}
@@ -571,7 +571,7 @@ export function Reports() {
                   activeTypeFilter === 'repayment' ? 'bg-primary text-white shadow-sm' : 'text-slate-500 hover:text-primary'
                 }`}
               >
-                Loan Repayments ({approvedRepayments.length})
+                {t('admin_reports.loan_repayments')} ({approvedRepayments.length})
               </button>
               <button
                 onClick={() => setActiveTypeFilter('expense')}
@@ -579,7 +579,7 @@ export function Reports() {
                   activeTypeFilter === 'expense' ? 'bg-rose-500 text-white shadow-sm' : 'text-slate-500 hover:text-rose-500'
                 }`}
               >
-                Expenses ({withdrawals.length})
+                {t('admin_reports.expenses')} ({withdrawals.length})
               </button>
             </div>
 
@@ -591,7 +591,7 @@ export function Reports() {
                 onChange={e => setActiveMethodFilter(e.target.value)}
                 className="bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-primary"
               >
-                <option value="all">All Gateways</option>
+                <option value="all">{t('admin_reports.all_gateways')}</option>
                 <option value="bkash">bKash</option>
                 <option value="nagad">Nagad</option>
                 <option value="rocket">Rocket</option>

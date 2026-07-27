@@ -4,8 +4,10 @@ import api from '../../../utils/api';
 import { Skeleton } from '../ui/skeleton';
 import { cn } from '../Layout';
 import { useSocket } from '../../../context/SocketContext';
+import { useTranslation } from 'react-i18next';
 
 export function LoanHistory({ user }: { user: any }) {
+  const { t } = useTranslation();
   const [loans, setLoans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const { updateTicker } = useSocket();
@@ -17,7 +19,6 @@ export function LoanHistory({ user }: { user: any }) {
   const fetchLoans = async () => {
     try {
       const res = await api.get('/loans');
-      // Backend already filters by user if not admin, but let's be safe
       const userLoans = res.data.filter((l: any) => l.userId === user.id || l.userId === user._id || (typeof l.userId === 'object' && l.userId._id === (user.id || user._id)));
       setLoans(userLoans.sort((a: any, b: any) => new Date(b.requestDate).getTime() - new Date(a.requestDate).getTime()));
     } catch (err) {
@@ -27,11 +28,20 @@ export function LoanHistory({ user }: { user: any }) {
     }
   };
 
+  const getStatusBadge = (status: string) => {
+    let key = 'status_pending';
+    if (status === 'approved' || status === 'active') key = 'status_approved';
+    else if (status === 'repaid') key = 'status_repaid';
+    else if (status === 'rejected') key = 'status_rejected';
+    
+    return t(`member_loan_history.${key}`);
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">Loan History</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">View your previous and active loan requests.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{t('member_loan_history.title')}</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400">{t('member_loan_history.subtitle')}</p>
       </div>
 
       <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 overflow-hidden">
@@ -55,7 +65,7 @@ export function LoanHistory({ user }: { user: any }) {
           ) : loans.length === 0 ? (
             <div className="p-12 text-center text-slate-500">
               <Clock size={40} className="mx-auto mb-4 opacity-20" />
-              <p>You have no loan history.</p>
+              <p>{t('member_loan_history.no_history')}</p>
             </div>
           ) : (
             loans.map((loan) => (
@@ -73,7 +83,7 @@ export function LoanHistory({ user }: { user: any }) {
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 dark:text-white text-lg">৳ {loan.amount.toLocaleString()}</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 capitalize">{loan.purpose || 'General Loan'} • {new Date(loan.requestDate).toLocaleDateString()}</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 capitalize">{loan.purpose || t('member_loan_history.purpose_general')} • {new Date(loan.requestDate).toLocaleDateString()}</p>
                   </div>
                 </div>
                 <div className="text-left sm:text-right">
@@ -83,9 +93,9 @@ export function LoanHistory({ user }: { user: any }) {
                     loan.status === 'repaid' ? "bg-primary/10 text-primary" :
                     loan.status === 'rejected' ? "bg-danger/10 text-danger" : "bg-warning/10 text-warning"
                   )}>
-                    {loan.status}
+                    {getStatusBadge(loan.status)}
                   </span>
-                  <p className="text-xs text-slate-500 mt-2">Interest: {loan.interestRate}%</p>
+                  <p className="text-xs text-slate-500 mt-2">{t('member_loan_history.interest')}: {loan.interestRate}%</p>
                 </div>
               </div>
             ))
