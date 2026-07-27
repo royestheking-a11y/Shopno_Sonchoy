@@ -8,6 +8,40 @@ const Ledger = require('../models/Ledger');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
 const { sendEmail } = require('../utils/emailHelper');
 
+/**
+ * Profit-First Repayment Allocator
+ * -----------------------------------
+ * Given a loan and the total amount already repaid, calculates how much
+ * of a new payment goes to PROFIT (interest) first, then PRINCIPAL.
+ *
+ * Example:
+ *   Loan = 10,000 BDT @ 5% → Total owed = 10,500 BDT
+ *   Interest portion = 500 BDT (must be cleared FIRST)
+ *   If user pays 3,000 BDT:
+ *     → 500 BDT clears the profit
+ *     → 2,500 BDT reduces principal
+ *
+ * @param {Object} loan        - Loan document (amount, interestRate)
+ * @param {number} totalRepaid - Sum of all previously approved repayments for this loan
+ * @param {number} payment     - Current payment being applied
+ * @returns {{ profitPaid: number, principalPaid: number }}
+ */
+function calcProfitFirst(loan, totalRepaid, payment) {
+  const principal = loan.amount;
+  const interestRate = loan.interestRate || 5;
+  const totalInterest = principal * (interestRate / 100);
+
+  // How much interest has already been covered by prior payments?
+  const interestAlreadyCovered = Math.min(totalRepaid, totalInterest);
+  const remainingInterest = Math.max(0, totalInterest - interestAlreadyCovered);
+
+  // Apply payment: profit first
+  const profitPaid = Math.min(payment, remainingInterest);
+  const principalPaid = payment - profitPaid;
+
+  return { profitPaid, principalPaid };
+}
+
 // Get system profit stats
 router.get('/system-profit', verifyToken, async (req, res) => {
   try {
@@ -194,8 +228,14 @@ router.post('/:id/repay', verifyToken, async (req, res) => {
     if (method === 'Wallet Balance') {
         const user = await User.findById(loan.userId);
         if (user.balance < amount) return res.status(400).json({ message: 'Insufficient wallet balance' });
+
+        // Profit-first allocation
+        const prevRepayments = await LoanRepayment.find({ loanId: loan._id, status: 'approved' });
+        const totalPrevRepaid = prevRepayments.reduce((s, r) => s + r.amount, 0);
+        const { profitPaid, principalPaid } = calcProfitFirst(loan, totalPrevRepaid, amount);
+
         user.balance -= amount;
-        user.loanBalance -= amount;
+        user.loanBalance = Math.max(0, user.loanBalance - amount);
         await user.save();
 
         repayment.approvedAt = new Date();
@@ -206,22 +246,34 @@ router.post('/:id/repay', verifyToken, async (req, res) => {
         masterWallet.lastUpdated = new Date();
         await masterWallet.save();
 
-        // Ledger Entry
-        const ledgerEntry = new Ledger({
-          type: 'loan_repayment',
-          description: `Loan repayment from User ${user.memberId || user.name} via Wallet`,
-          debitAccount: 'User Wallet',
-          debitAmount: amount,
-          creditAccount: 'Master Wallet',
-          creditAmount: amount,
-          referenceId: repayment._id
-        });
-        await ledgerEntry.save();
+        // Ledger Entry — split into profit and principal for clarity
+        if (profitPaid > 0) {
+          await new Ledger({
+            type: 'loan_interest_received',
+            description: `Interest/profit received from ${user.memberId || user.name} via Wallet (৳${profitPaid} of ৳${amount} payment)`,
+            debitAccount: 'User Wallet',
+            debitAmount: profitPaid,
+            creditAccount: 'Master Wallet (Profit)',
+            creditAmount: profitPaid,
+            referenceId: repayment._id
+          }).save();
+        }
+        if (principalPaid > 0) {
+          await new Ledger({
+            type: 'loan_repayment',
+            description: `Principal repayment from ${user.memberId || user.name} via Wallet (৳${principalPaid} of ৳${amount} payment)`,
+            debitAccount: 'User Wallet',
+            debitAmount: principalPaid,
+            creditAccount: 'Master Wallet (Principal)',
+            creditAmount: principalPaid,
+            referenceId: repayment._id
+          }).save();
+        }
     }
     
     await repayment.save();
     
-    // Check if fully repaid (we could compute this dynamically but let's do it if it's approved)
+    // Check if fully repaid
     if (repayment.status === 'approved') {
         const repayments = await LoanRepayment.find({ loanId: loan._id, status: 'approved' });
         const totalRepaid = repayments.reduce((sum, r) => sum + r.amount, 0);
@@ -270,9 +322,24 @@ router.put('/repayments/:id/status', verifyToken, verifyAdmin, async (req, res) 
             repayment.approvedBy = req.user.id;
             
             const user = await User.findById(repayment.userId);
-            user.loanBalance -= repayment.amount;
+            const loan = await Loan.findById(repayment.loanId);
+
+            // --- Profit-first repayment allocation ---
+            // Fetch all PREVIOUSLY approved repayments (excluding the current one being approved)
+            const prevRepayments = await LoanRepayment.find({
+              loanId: loan._id,
+              status: 'approved',
+              _id: { $ne: repayment._id }
+            });
+            const totalPrevRepaid = prevRepayments.reduce((s, r) => s + r.amount, 0);
+            const { profitPaid, principalPaid } = calcProfitFirst(loan, totalPrevRepaid, repayment.amount);
+            console.log(`[Profit-First] Loan ${loan._id}: payment=৳${repayment.amount}, profitPaid=৳${profitPaid}, principalPaid=৳${principalPaid}`);
+
+            // Update user loan balance
+            user.loanBalance = Math.max(0, user.loanBalance - repayment.amount);
             await user.save();
 
+            // Update master wallet
             let masterWallet = await MasterWallet.findOne();
             if (!masterWallet) masterWallet = new MasterWallet();
             masterWallet.balance += repayment.amount;
@@ -280,22 +347,35 @@ router.put('/repayments/:id/status', verifyToken, verifyAdmin, async (req, res) 
             masterWallet.updatedBy = req.user.id;
             await masterWallet.save();
 
-            const ledgerEntry = new Ledger({
-              type: 'loan_repayment',
-              description: `Loan repayment from User ${user.memberId || user.name} via ${repayment.method}`,
-              debitAccount: 'External / Bank',
-              debitAmount: repayment.amount,
-              creditAccount: 'Master Wallet',
-              creditAmount: repayment.amount,
-              referenceId: repayment._id
-            });
-            await ledgerEntry.save();
+            // Split ledger entries: profit portion + principal portion
+            if (profitPaid > 0) {
+              await new Ledger({
+                type: 'loan_interest_received',
+                description: `Interest/profit received from ${user.memberId || user.name} via ${repayment.method} (৳${profitPaid} of ৳${repayment.amount})`,
+                debitAccount: 'External / Bank',
+                debitAmount: profitPaid,
+                creditAccount: 'Master Wallet (Profit)',
+                creditAmount: profitPaid,
+                referenceId: repayment._id
+              }).save();
+            }
+            if (principalPaid > 0) {
+              await new Ledger({
+                type: 'loan_repayment',
+                description: `Principal repayment from ${user.memberId || user.name} via ${repayment.method} (৳${principalPaid} of ৳${repayment.amount})`,
+                debitAccount: 'External / Bank',
+                debitAmount: principalPaid,
+                creditAccount: 'Master Wallet (Principal)',
+                creditAmount: principalPaid,
+                referenceId: repayment._id
+              }).save();
+            }
 
             await repayment.save();
 
-            const loan = await Loan.findById(repayment.loanId);
-            const repayments = await LoanRepayment.find({ loanId: loan._id, status: 'approved' });
-            const totalRepaid = repayments.reduce((sum, r) => sum + r.amount, 0);
+            // Check if fully repaid
+            const allRepayments = await LoanRepayment.find({ loanId: loan._id, status: 'approved' });
+            const totalRepaid = allRepayments.reduce((sum, r) => sum + r.amount, 0);
             const expectedRepayment = loan.amount + (loan.amount * ((loan.interestRate || 5) / 100));
             if (totalRepaid >= expectedRepayment) {
                 loan.status = 'repaid';
