@@ -15,10 +15,19 @@ router.post('/login', async (req, res) => {
     const input = email.toString().trim();
     const cleanPassword = password.toString();
 
+    // Flexible fallback for emails missing or having .com (e.g. liakatk1760@gmail vs liakatk1760@gmail.com)
+    let altInput = input;
+    if (input.endsWith('@gmail')) {
+      altInput = input + '.com';
+    } else if (input.endsWith('@gmail.com')) {
+      altInput = input.replace(/@gmail\.com$/i, '@gmail');
+    }
+
     // Search by case-insensitive email, exact memberId, or phone
     const user = await User.findOne({
       $or: [
         { email: { $regex: new RegExp(`^${input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
+        { email: { $regex: new RegExp(`^${altInput.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
         { memberId: input },
         { phone: input }
       ]
@@ -47,10 +56,17 @@ router.post('/login', async (req, res) => {
 
 router.post('/register', async (req, res) => {
   try {
-    const { 
+    let { 
       memberId, name, email, password, role, 
       phone, alternatePhone, address, nidNumber, nomineeName, nomineePhone 
     } = req.body;
+
+    if (email) {
+      email = email.trim().toLowerCase();
+      if (email.endsWith('@gmail')) {
+        email += '.com';
+      }
+    }
     
     const existing = await User.findOne({ email });
     if (existing) return res.status(400).json({ message: 'Email already exists' });
