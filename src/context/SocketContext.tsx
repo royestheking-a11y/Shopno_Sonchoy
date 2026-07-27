@@ -19,7 +19,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   useEffect(() => {
     // Determine the API URL
-    const apiUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+    const apiUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
     // We only need the origin for the socket connection
     const socketUrl = new URL(apiUrl).origin;
     

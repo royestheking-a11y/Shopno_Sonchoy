@@ -1,7 +1,29 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const Loan = require('../models/Loan');
+const LoanRepayment = require('../models/LoanRepayment');
 const { verifyToken, verifyAdmin } = require('../middleware/auth');
+
+// Helper to auto-sync loan balance
+async function syncUserLoanBalance(userId) {
+  const activeLoans = await Loan.find({ userId, status: { $in: ['active', 'approved'] } });
+  let totalBalance = 0;
+  for (let l of activeLoans) {
+    const repayments = await LoanRepayment.find({ loanId: l._id, status: 'approved' });
+    const totalRepaid = repayments.reduce((s, r) => s + r.amount, 0);
+    const expected = l.amount + (l.amount * ((l.interestRate || 5) / 100));
+    const remaining = expected - totalRepaid;
+    if (remaining <= 0) {
+      l.status = 'repaid';
+      await l.save();
+    } else {
+      totalBalance += remaining;
+    }
+  }
+  await User.findByIdAndUpdate(userId, { loanBalance: Math.max(0, totalBalance) });
+  return Math.max(0, totalBalance);
+}
 
 // Get all users
 router.get('/', verifyToken, async (req, res) => {
@@ -20,6 +42,7 @@ router.get('/', verifyToken, async (req, res) => {
 // Get single user
 router.get('/:id', verifyToken, async (req, res) => {
   try {
+    await syncUserLoanBalance(req.params.id);
     const user = await User.findById(req.params.id, '-password');
     if (!user) return res.status(404).json({ message: 'User not found' });
     res.json(user);

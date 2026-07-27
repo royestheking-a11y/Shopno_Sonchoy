@@ -357,6 +357,8 @@
     "method_label": "Payment Method",
     "method_wallet": "Wallet Balance",
     "method_bkash": "bKash",
+    "method_nagad": "Nagad",
+    "method_rocket": "Rocket",
     "method_bank": "Bank Transfer",
     "method_cash": "Cash at Branch",
     "wallet_balance_info": "Your current wallet balance is ৳ {{balance}}",

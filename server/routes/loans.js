@@ -105,14 +105,49 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
 
       // Send Email Notification
       try {
+        const loanAmountStr = loan.amount.toLocaleString();
+        const interestRateStr = `${loan.interestRate || 5}%`;
+        const loanIdStr = loan._id.toString();
+        const currentDateStr = new Date().toLocaleDateString();
+        const loanBalanceStr = (user.loanBalance || 0).toLocaleString();
+        const walletBalanceStr = (user.balance || 0).toLocaleString();
+
         await sendEmail(process.env.EMAILJS_TEMPLATE_LOAN, {
           to_email: user.email,
           email: user.email,
+          user_email: user.email,
+          to_name: user.name,
           name: user.name,
-          amount: loan.amount.toLocaleString(),
-          interestRate: `${loan.interestRate || 5}%`,
-          loanId: loan._id.toString(),
-          date: new Date().toLocaleDateString()
+          user_name: user.name,
+
+          amount: loanAmountStr,
+          loan_amount: loanAmountStr,
+          loanAmount: loanAmountStr,
+
+          interestRate: interestRateStr,
+          interest_rate: interestRateStr,
+          interest: interestRateStr,
+
+          loanId: loanIdStr,
+          loan_id: loanIdStr,
+          transaction_id: loanIdStr,
+          trx_id: loanIdStr,
+          trxId: loanIdStr,
+          id: loanIdStr,
+
+          date: currentDateStr,
+          approval_date: currentDateStr,
+          approvalDate: currentDateStr,
+
+          loanBalance: loanBalanceStr,
+          loan_balance: loanBalanceStr,
+          updated_loan_balance: loanBalanceStr,
+
+          newBalance: walletBalanceStr,
+          new_balance: walletBalanceStr,
+          updatedBalance: walletBalanceStr,
+          updated_balance: walletBalanceStr,
+          balance: walletBalanceStr
         });
         console.log(`Loan approval email sent to ${user.email}`);
       } catch (emailErr) {
@@ -134,6 +169,11 @@ router.post('/:id/repay', verifyToken, async (req, res) => {
   try {
     const loan = await Loan.findById(req.params.id);
     if (!loan) return res.status(404).json({ message: 'Loan not found' });
+
+    const existingPending = await LoanRepayment.findOne({ userId: loan.userId, status: 'pending' });
+    if (existingPending) {
+      return res.status(400).json({ error: 'You already have a pending loan repayment request. Please wait for admin approval before submitting another.' });
+    }
     
     const { amount, method, reference } = req.body;
     
@@ -196,10 +236,14 @@ router.post('/:id/repay', verifyToken, async (req, res) => {
   }
 });
 
-// Get loan repayments (admin)
-router.get('/repayments', verifyToken, verifyAdmin, async (req, res) => {
+// Get loan repayments (admin or member's own)
+router.get('/repayments', verifyToken, async (req, res) => {
     try {
-        const repayments = await LoanRepayment.find().populate('userId', 'name memberId email phone').sort({ date: -1 });
+        let query = {};
+        if (req.user.role !== 'admin') {
+            query.userId = req.user.id;
+        }
+        const repayments = await LoanRepayment.find(query).populate('userId', 'name memberId email phone').sort({ date: -1 });
         res.json(repayments);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -251,6 +295,54 @@ router.put('/repayments/:id/status', verifyToken, verifyAdmin, async (req, res) 
             if (totalRepaid >= expectedRepayment) {
                 loan.status = 'repaid';
                 await loan.save();
+            }
+
+            // Send Email Notification
+            try {
+              const repayAmountStr = repayment.amount.toLocaleString();
+              const remainingLoanStr = Math.max(0, user.loanBalance).toLocaleString();
+              const currentDateStr = new Date().toLocaleDateString();
+              const trxRefStr = repayment.reference || repayment.method || repayment._id.toString();
+
+              await sendEmail(process.env.EMAILJS_TEMPLATE_LOAN || process.env.EMAILJS_TEMPLATE_DEPOSIT, {
+                to_email: user.email,
+                email: user.email,
+                user_email: user.email,
+                to_name: user.name,
+                name: user.name,
+                user_name: user.name,
+
+                amount: repayAmountStr,
+                repayment_amount: repayAmountStr,
+                repaymentAmount: repayAmountStr,
+
+                method: repayment.method || 'bKash',
+                payment_method: repayment.method || 'bKash',
+                paymentMethod: repayment.method || 'bKash',
+
+                transactionId: trxRefStr,
+                transaction_id: trxRefStr,
+                trx_id: trxRefStr,
+                trxId: trxRefStr,
+                reference: trxRefStr,
+                id: repayment._id.toString(),
+
+                date: currentDateStr,
+                approval_date: currentDateStr,
+                approvalDate: currentDateStr,
+
+                loanBalance: remainingLoanStr,
+                loan_balance: remainingLoanStr,
+                updated_loan_balance: remainingLoanStr,
+                newBalance: remainingLoanStr,
+                new_balance: remainingLoanStr,
+                updatedBalance: remainingLoanStr,
+                updated_balance: remainingLoanStr,
+                balance: remainingLoanStr
+              });
+              console.log(`Loan repayment approval email sent to ${user.email}`);
+            } catch (emailErr) {
+              console.error('Failed to send loan repayment approval email:', emailErr.message);
             }
         } else {
             await repayment.save();

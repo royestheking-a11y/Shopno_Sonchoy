@@ -92,15 +92,44 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
 
       // Send Email Notification
       try {
+        const depositAmountStr = deposit.amount.toLocaleString();
+        const newBalanceStr = user.balance.toLocaleString();
+        const trxRefStr = deposit.reference || deposit._id.toString();
+        const currentDateStr = new Date().toLocaleDateString();
+
         await sendEmail(process.env.EMAILJS_TEMPLATE_DEPOSIT, {
           to_email: user.email,
           email: user.email,
+          user_email: user.email,
+          to_name: user.name,
           name: user.name,
-          amount: deposit.amount.toLocaleString(),
-          method: deposit.method,
-          transactionId: deposit._id.toString(),
-          date: new Date().toLocaleDateString(),
-          newBalance: user.balance.toLocaleString()
+          user_name: user.name,
+
+          amount: depositAmountStr,
+          deposit_amount: depositAmountStr,
+          depositAmount: depositAmountStr,
+
+          method: deposit.method || 'bKash',
+          payment_method: deposit.method || 'bKash',
+          paymentMethod: deposit.method || 'bKash',
+
+          transactionId: trxRefStr,
+          transaction_id: trxRefStr,
+          trx_id: trxRefStr,
+          trxId: trxRefStr,
+          reference: trxRefStr,
+          id: deposit._id.toString(),
+
+          date: currentDateStr,
+          approval_date: currentDateStr,
+          approvalDate: currentDateStr,
+
+          newBalance: newBalanceStr,
+          new_balance: newBalanceStr,
+          updatedBalance: newBalanceStr,
+          updated_balance: newBalanceStr,
+          balance: newBalanceStr,
+          current_balance: newBalanceStr
         });
         console.log(`Deposit approval email sent to ${user.email}`);
       } catch (emailErr) {

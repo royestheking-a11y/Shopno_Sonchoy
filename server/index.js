@@ -30,7 +30,7 @@ const io = new Server(server, {
 // Expose io to routes
 app.set('io', io);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 app.use(cors());
 app.use(express.json());
@@ -96,7 +96,9 @@ io.on('connection', (socket) => {
   });
 });
 
-mongoose.connect(process.env.MONGODB_URI)
+const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://sonchoyshopno_db_user:iFT1QLuWc74qR4mV@cluster0.5ekca7f.mongodb.net/shopno_sonchoy?retryWrites=true&w=majority";
+
+mongoose.connect(MONGODB_URI)
   .then(() => {
     console.log('Connected to MongoDB');
     server.listen(PORT, () => {

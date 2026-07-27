@@ -356,6 +356,8 @@
     "method_label": "পেমেন্ট পদ্ধতি",
     "method_wallet": "ওয়ালেট ব্যালেন্স",
     "method_bkash": "বিকাশ",
+    "method_nagad": "নগদ",
+    "method_rocket": "রকেট",
     "method_bank": "ব্যাংক ট্রান্সফার",
     "method_cash": "ব্রাঞ্চ থেকে ক্যাশ",
     "wallet_balance_info": "আপনার বর্তমান ওয়ালেট ব্যালেন্স ৳ {{balance}}",

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle2, AlertCircle, Info } from 'lucide-react';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '../ui/skeleton';
@@ -15,17 +15,25 @@ export function RepayLoan({ user }: { user: any }) {
   const [userData, setUserData] = useState(user);
   const [activeLoanId, setActiveLoanId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasPendingRepayment, setHasPendingRepayment] = useState(false);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const userRes = await api.get(`/users/${user._id || user.id}`);
+        const [userRes, loansRes, repaymentsRes] = await Promise.all([
+          api.get(`/users/${user._id || user.id}`),
+          api.get('/loans'),
+          api.get('/loans/repayments').catch(() => ({ data: [] }))
+        ]);
         setUserData(userRes.data);
         
-        const loansRes = await api.get('/loans');
         const activeLoan = loansRes.data.find((l: any) => l.status === 'active' || l.status === 'approved');
         if (activeLoan) {
           setActiveLoanId(activeLoan._id);
         }
+
+        const pending = (repaymentsRes.data || []).some((r: any) => r.status === 'pending');
+        setHasPendingRepayment(pending);
       } catch (err) {
         console.error(err);
       } finally {
@@ -49,7 +57,6 @@ export function RepayLoan({ user }: { user: any }) {
       return;
     }
 
-
     if (!activeLoanId) {
       setError(t('member_repay_loan.error_no_loan'));
       return;
@@ -62,13 +69,27 @@ export function RepayLoan({ user }: { user: any }) {
         method: method === 'Cash at Branch' ? 'Cash at Branch' : `${method} - ${trxId}`
       });
       setStep(2);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to submit repayment', err);
-      setError(t('member_repay_loan.error_submit'));
+      setError(err.response?.data?.error || err.response?.data?.message || t('member_repay_loan.error_submit'));
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (hasPendingRepayment) {
+    return (
+      <div className="max-w-md mx-auto mt-12 bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 text-center">
+        <div className="w-20 h-20 bg-warning/10 text-warning rounded-full flex items-center justify-center mx-auto mb-6">
+          <Info size={40} />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Pending Repayment Request</h2>
+        <p className="text-slate-500 dark:text-slate-400 mb-8">
+          You already have a pending loan repayment request. Please wait for the admin to approve it before submitting another one.
+        </p>
+      </div>
+    );
+  }
 
   if (step === 2) {
     return (
@@ -116,66 +137,89 @@ export function RepayLoan({ user }: { user: any }) {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t('member_repay_loan.amount_label')}</label>
-            <input
-              type="number"
-              required
-              className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-lg font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all dark:text-white"
-              placeholder={t('member_repay_loan.amount_placeholder')}
-              value={amount}
-              onChange={(e) => { setAmount(e.target.value); setError(''); }}
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">{t('member_repay_loan.method_label')}</label>
-            <div className="grid grid-cols-2 gap-3">
-              {[
-                { id: 'bKash', label: t('member_repay_loan.method_bkash') },
-                { id: 'Bank Transfer', label: t('member_repay_loan.method_bank') },
-                { id: 'Cash at Branch', label: t('member_repay_loan.method_cash') }
-              ].map(m => (
-                <button
-                  key={m.id}
-                  type="button"
-                  onClick={() => setMethod(m.id)}
-                  className={`py-3 px-2 text-sm font-medium rounded-xl border transition-all ${
-                    method === m.id 
-                      ? 'bg-primary/10 border-primary text-primary dark:bg-primary/20' 
-                      : 'bg-white dark:bg-slate-800 border-[#E5E7EB] dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
-                  }`}
-                >
-                  {m.label}
-                </button>
-              ))}
+        {!loading && (userData.loanBalance || 0) <= 0 ? (
+          <div className="text-center py-8 px-4 bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl border border-emerald-200 dark:border-emerald-800/40">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 size={36} />
             </div>
-
+            <h3 className="text-lg font-bold text-emerald-900 dark:text-emerald-200 mb-1">
+              No Outstanding Loan
+            </h3>
+            <p className="text-sm text-emerald-700 dark:text-emerald-400">
+              You do not have any active or pending loan balance. All your loans have been fully repaid!
+            </p>
           </div>
-
-          {method !== 'Cash at Branch' && (
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t('member_repay_loan.trx_id_label')}</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t('member_repay_loan.amount_label')}</label>
               <input
-                type="text"
+                type="number"
                 required
-                value={trxId}
-                onChange={(e) => setTrxId(e.target.value)}
-                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all dark:text-white"
-                placeholder={t('member_repay_loan.trx_id_placeholder')}
+                className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-lg font-semibold focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all dark:text-white"
+                placeholder={t('member_repay_loan.amount_placeholder')}
+                value={amount}
+                onChange={(e) => { setAmount(e.target.value); setError(''); }}
               />
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={(userData.loanBalance || 0) <= 0 || isSubmitting || !activeLoanId}
-            className="w-full bg-slate-900 hover:bg-black dark:bg-primary dark:hover:bg-primary-dark text-white py-3.5 rounded-xl font-semibold transition-all shadow-md mt-4 disabled:opacity-50"
-          >
-            {isSubmitting ? t('member_repay_loan.submitting') : t('member_repay_loan.submit_btn')}
-          </button>
-        </form>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">{t('member_repay_loan.method_label')}</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[
+                  { id: 'bKash', label: t('member_repay_loan.method_bkash') },
+                  { id: 'Nagad', label: t('member_repay_loan.method_nagad') },
+                  { id: 'Rocket', label: t('member_repay_loan.method_rocket') },
+                  { id: 'Bank Transfer', label: t('member_repay_loan.method_bank') },
+                  { id: 'Cash at Branch', label: t('member_repay_loan.method_cash') }
+                ].map(m => {
+                  const isSelected = method === m.id;
+                  let activeColor = 'bg-primary/10 border-primary text-primary dark:bg-primary/20';
+                  if (m.id === 'bKash') activeColor = 'bg-pink-500/10 border-pink-500 text-pink-600 dark:text-pink-400';
+                  if (m.id === 'Nagad') activeColor = 'bg-amber-500/10 border-amber-500 text-amber-600 dark:text-amber-400';
+                  if (m.id === 'Rocket') activeColor = 'bg-purple-500/10 border-purple-500 text-purple-600 dark:text-purple-400';
+
+                  return (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setMethod(m.id)}
+                      className={`py-3 px-2 text-sm font-bold rounded-xl border transition-all ${
+                        isSelected 
+                          ? activeColor 
+                          : 'bg-white dark:bg-slate-800 border-[#E5E7EB] dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'
+                      }`}
+                    >
+                      {m.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {method !== 'Cash at Branch' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t('member_repay_loan.trx_id_label')}</label>
+                <input
+                  type="text"
+                  required
+                  value={trxId}
+                  onChange={(e) => setTrxId(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all dark:text-white"
+                  placeholder={t('member_repay_loan.trx_id_placeholder')}
+                />
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={(userData.loanBalance || 0) <= 0 || isSubmitting || !activeLoanId}
+              className="w-full bg-slate-900 hover:bg-black dark:bg-primary dark:hover:bg-primary-dark text-white py-3.5 rounded-xl font-semibold transition-all shadow-md mt-4 disabled:opacity-50"
+            >
+              {isSubmitting ? t('member_repay_loan.submitting') : t('member_repay_loan.submit_btn')}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   );
