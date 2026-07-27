@@ -8,6 +8,7 @@ const LoanRepayment = require('./models/LoanRepayment');
 const Transaction = require('./models/Transaction');
 const Ledger = require('./models/Ledger');
 const MonthlyClosing = require('./models/MonthlyClosing');
+const Report = require('./models/Report');
 const MasterWallet = require('./models/MasterWallet');
 const User = require('./models/User');
 
@@ -36,33 +37,31 @@ async function resetAllTransactions() {
     const closingResult = await MonthlyClosing.deleteMany({});
     console.log(`Cleared ${closingResult.deletedCount} MonthlyClosing records.`);
 
-    // 2. Reset Master Wallet
+    const reportResult = await Report.deleteMany({});
+    console.log(`Cleared ${reportResult.deletedCount} Report records.`);
+
+    // 2. Reset Master Wallet to zero
     await MasterWallet.deleteMany({});
     await MasterWallet.create({
       balance: 0,
-      totalDeposits: 0,
-      totalLoans: 0,
-      totalWithdrawn: 0,
-      withdrawals: []
+      lastUpdated: new Date()
     });
-    console.log('Master Wallet balance & withdrawal history reset to 0.');
+    console.log('Master Wallet balance reset to ৳0.');
 
-    // 3. Reset User balances (keep user accounts & passwords intact)
+    // 3. Reset User balances (balance: 0, loanBalance: 0, advanceMonths: 0)
     const userUpdateResult = await User.updateMany(
       {},
       {
         $set: {
-          depositBalance: 0,
-          outstandingLoan: 0,
-          walletBalance: 0,
-          totalDeposits: 0,
-          totalLoans: 0
+          balance: 0,
+          loanBalance: 0,
+          advanceMonths: 0
         }
       }
     );
-    console.log(`Reset financial balances for ${userUpdateResult.modifiedCount} users.`);
+    console.log(`Reset financial balances (balance: 0, loanBalance: 0) for ${userUpdateResult.modifiedCount} users.`);
 
-    console.log('\n✅ ALL TRANSACTIONS CLEARED SUCCESSFULLY! The system is now 100% fresh.');
+    console.log('\n✅ ALL MEMBER TRANSACTIONS & BALANCES CLEARED SUCCESSFULLY! Full zero start achieved.');
   } catch (error) {
     console.error('❌ Reset failed:', error);
   } finally {

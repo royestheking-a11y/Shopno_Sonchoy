@@ -64,15 +64,16 @@ router.post('/reset-transactions', verifyToken, verifyAdmin, async (req, res) =>
       withdrawals: []
     });
 
+    const Report = require('../models/Report');
+    await Report.deleteMany({});
+
     await User.updateMany(
       {},
       {
         $set: {
-          depositBalance: 0,
-          outstandingLoan: 0,
-          walletBalance: 0,
-          totalDeposits: 0,
-          totalLoans: 0
+          balance: 0,
+          loanBalance: 0,
+          advanceMonths: 0
         }
       }
     );
