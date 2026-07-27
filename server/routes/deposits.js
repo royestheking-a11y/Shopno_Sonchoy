@@ -92,10 +92,11 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
 
       // Send Email Notification
       try {
-        const depositAmountStr = deposit.amount.toLocaleString();
-        const newBalanceStr = user.balance.toLocaleString();
+        const depositAmountStr = deposit.amount ? deposit.amount.toLocaleString() : '0';
+        const newBalanceStr = user.balance ? user.balance.toLocaleString() : '0';
         const trxRefStr = deposit.reference || deposit._id.toString();
         const currentDateStr = new Date().toLocaleDateString();
+        const methodStr = deposit.method || 'bKash';
 
         await sendEmail(process.env.EMAILJS_TEMPLATE_DEPOSIT, {
           to_email: user.email,
