@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { generateMembersReport } from '../../utils/pdfGenerator';
 import { Skeleton } from './ui/skeleton';
 import { useSocket } from '../../context/SocketContext';
+import { toast } from 'sonner';
 
 // Simple Modal Component
 const Modal = ({ isOpen, onClose, title, children }: any) => {
@@ -136,7 +137,7 @@ export function Members() {
       setFormData(emptyForm);
     } catch (err: any) {
       console.error('Failed to create member', err);
-      alert(err.response?.data?.message || 'Error creating member');
+      toast.error(err.response?.data?.message || 'Error creating member');
     }
   };
 
@@ -166,11 +167,11 @@ export function Members() {
       await api.put(`/users/${selectedMember._id}/password`, {
         newPassword: formData.password
       });
-      alert(t('admin_members.alert_reset_backend') || 'Password updated successfully');
+      toast.success(t('admin_members.alert_reset_backend') || 'Password updated successfully');
       setIsPasswordModalOpen(false);
     } catch (err: any) {
       console.error('Failed to reset password', err);
-      alert(err.response?.data?.message || 'Error updating password');
+      toast.error(err.response?.data?.message || 'Error updating password');
     }
   };
 

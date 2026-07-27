@@ -3,6 +3,7 @@ import { Upload, CheckCircle2, Info, Copy } from 'lucide-react';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '../ui/skeleton';
+import { toast } from 'sonner';
 
 export function DepositFlow({ user }: { user: any }) {
   const { t } = useTranslation();
@@ -46,7 +47,7 @@ export function DepositFlow({ user }: { user: any }) {
       setStep(2);
     } catch (err: any) {
       console.error('Failed to submit deposit', err);
-      alert(err.response?.data?.error || t('member_deposit_flow.failed_submit'));
+      toast.error(err.response?.data?.error || t('member_deposit_flow.failed_submit'));
     } finally {
       setIsSubmitting(false);
     }
@@ -158,7 +159,7 @@ export function DepositFlow({ user }: { user: any }) {
                   <p className="text-xs text-slate-500 uppercase font-semibold mb-1">{t('member_deposit_flow.account_number')}</p>
                   <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-2.5 rounded-lg border border-[#E5E7EB] dark:border-slate-700 shadow-sm">
                     <span className="font-mono font-bold text-slate-900 dark:text-white">7017322834366</span>
-                    <button type="button" onClick={() => {navigator.clipboard.writeText('7017322834366'); alert(t('member_deposit_flow.copied_account'))}} className="text-primary hover:text-primary-dark p-1 transition-colors"><Copy size={16} /></button>
+                    <button type="button" onClick={() => {navigator.clipboard.writeText('7017322834366'); toast.success(t('member_deposit_flow.copied_account'))}} className="text-primary hover:text-primary-dark p-1 transition-colors"><Copy size={16} /></button>
                   </div>
                 </div>
                 <div>
@@ -198,7 +199,7 @@ export function DepositFlow({ user }: { user: any }) {
                 <p className="text-xs text-slate-500 uppercase font-semibold mb-2">{t('member_deposit_flow.send_money_number')}</p>
                 <div className="flex justify-between items-center bg-white dark:bg-slate-800 p-3 rounded-xl border border-[#E5E7EB] dark:border-slate-700 shadow-sm">
                   <span className="font-mono text-lg font-bold tracking-wider text-slate-900 dark:text-white">01797256216</span>
-                  <button type="button" onClick={() => {navigator.clipboard.writeText('01797256216'); alert(t('member_deposit_flow.copied_phone'))}} className="flex items-center gap-1.5 text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors font-semibold text-xs border border-primary/20">
+                  <button type="button" onClick={() => {navigator.clipboard.writeText('01797256216'); toast.success(t('member_deposit_flow.copied_phone'))}} className="flex items-center gap-1.5 text-primary hover:bg-primary/10 px-3 py-1.5 rounded-lg transition-colors font-semibold text-xs border border-primary/20">
                     <Copy size={14} /> {t('member_deposit_flow.copy')}
                   </button>
                 </div>

@@ -35,6 +35,8 @@ const Placeholder = ({ title }: { title: string }) => (
   </div>
 );
 
+import { Toaster } from 'sonner';
+
 export default function App() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -59,10 +61,10 @@ export default function App() {
 
   if (loading) return <div className="min-h-screen bg-[#FAFAFA] dark:bg-slate-900 flex items-center justify-center">Loading...</div>;
 
-
   if (!user) {
     return (
       <BrowserRouter>
+        <Toaster position="top-center" richColors />
         <Routes>
           <Route path="*" element={<Login />} />
         </Routes>
@@ -72,6 +74,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <Toaster position="top-center" richColors />
       <SocketProvider>
         <Routes>
         <Route path="/" element={<AppLayout user={user} />}>
