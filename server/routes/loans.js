@@ -126,13 +126,16 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
 
           interestRate: interestRateStr,
           interest_rate: interestRateStr,
+          interestrate: interestRateStr,
           interest: interestRateStr,
 
           loanId: loanIdStr,
           loan_id: loanIdStr,
+          loanid: loanIdStr,
           transaction_id: loanIdStr,
           trx_id: loanIdStr,
           trxId: loanIdStr,
+          trxid: loanIdStr,
           id: loanIdStr,
 
           date: currentDateStr,
@@ -141,10 +144,12 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
 
           loanBalance: loanBalanceStr,
           loan_balance: loanBalanceStr,
+          loanbalance: loanBalanceStr,
           updated_loan_balance: loanBalanceStr,
 
           newBalance: walletBalanceStr,
           new_balance: walletBalanceStr,
+          newbalance: walletBalanceStr,
           updatedBalance: walletBalanceStr,
           updated_balance: walletBalanceStr,
           balance: walletBalanceStr

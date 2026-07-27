@@ -109,14 +109,17 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
           deposit_amount: depositAmountStr,
           depositAmount: depositAmountStr,
 
-          method: deposit.method || 'bKash',
-          payment_method: deposit.method || 'bKash',
-          paymentMethod: deposit.method || 'bKash',
+          method: methodStr,
+          payment_method: methodStr,
+          paymentMethod: methodStr,
+          paymentmethod: methodStr,
 
           transactionId: trxRefStr,
           transaction_id: trxRefStr,
           trx_id: trxRefStr,
           trxId: trxRefStr,
+          trxid: trxRefStr,
+          transactionid: trxRefStr,
           reference: trxRefStr,
           id: deposit._id.toString(),
 
@@ -126,8 +129,10 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
 
           newBalance: newBalanceStr,
           new_balance: newBalanceStr,
+          newbalance: newBalanceStr,
           updatedBalance: newBalanceStr,
           updated_balance: newBalanceStr,
+          updatedbalance: newBalanceStr,
           balance: newBalanceStr,
           current_balance: newBalanceStr
         });
