@@ -145,13 +145,20 @@ export function Settings({ user }: { user: any }) {
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Address</label>
                   <input type="text" defaultValue={userData.address || '-'} disabled className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none text-slate-500 cursor-not-allowed" />
                 </div>
+            <div className="max-w-xl space-y-6">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Personal Information</h3>
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Nominee Name</label>
-                  <input type="text" defaultValue={userData.nomineeName || '-'} disabled className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none text-slate-500 cursor-not-allowed" />
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{t('settings.full_name')}</label>
+                  <input type="text" readOnly value={userData.name || ''} className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-900/80 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none text-slate-500 cursor-not-allowed" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Nominee Phone</label>
-                  <input type="text" defaultValue={userData.nomineePhone || '-'} disabled className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none text-slate-500 cursor-not-allowed" />
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{t('settings.email')}</label>
+                  <input type="email" readOnly value={userData.email || ''} className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-900/80 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none text-slate-500 cursor-not-allowed" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{t('settings.phone')}</label>
+                  <input type="text" readOnly value={userData.mobile || 'Not set'} className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-900/80 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none text-slate-500 cursor-not-allowed" />
                 </div>
               </div>
             </div>
@@ -162,31 +169,18 @@ export function Settings({ user }: { user: any }) {
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">{t('settings.change_password')}</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t('settings.current_password')}</label>
-                  <div className="relative">
-                    <input type="password" value={passwords.current} onChange={e => setPasswords({...passwords, current: e.target.value})} placeholder="••••••••" className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none focus:border-primary dark:text-white" />
-                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  </div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{t('settings.current_password')}</label>
+                  <input type="password" value={passwords.current} onChange={e => setPasswords({ ...passwords, current: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none focus:border-primary dark:text-white" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t('settings.new_password')}</label>
-                  <div className="relative">
-                    <input type="password" value={passwords.new} onChange={e => setPasswords({...passwords, new: e.target.value})} placeholder="••••••••" className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none focus:border-primary dark:text-white" />
-                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  </div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{t('settings.new_password')}</label>
+                  <input type="password" value={passwords.new} onChange={e => setPasswords({ ...passwords, new: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none focus:border-primary dark:text-white" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t('settings.confirm_password')}</label>
-                  <div className="relative">
-                    <input type="password" value={passwords.confirm} onChange={e => setPasswords({...passwords, confirm: e.target.value})} placeholder="••••••••" className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none focus:border-primary dark:text-white" />
-                    <Lock size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  </div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{t('settings.confirm_password')}</label>
+                  <input type="password" value={passwords.confirm} onChange={e => setPasswords({ ...passwords, confirm: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none focus:border-primary dark:text-white" />
                 </div>
-                {passStatus && (
-                  <p className={`text-sm ${passStatus.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
-                    {passStatus}
-                  </p>
-                )}
+                {passStatus && <p className="text-sm font-medium text-primary">{passStatus}</p>}
                 <button onClick={handlePasswordChange} className="mt-4 flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded-xl font-medium transition-colors">
                   <Save size={18} /> Update Password
                 </button>
@@ -221,7 +215,7 @@ export function Settings({ user }: { user: any }) {
           {activeTab === 'admin' && user.role === 'admin' && (
             <div className="max-w-xl space-y-6">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Platform Settings</h3>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Global Loan Interest Rate (%)</label>
                   <input 
@@ -231,23 +225,28 @@ export function Settings({ user }: { user: any }) {
                     className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none focus:border-primary dark:text-white" 
                   />
                   <p className="text-xs text-slate-500 mt-2">This applies to all new loans requested by members.</p>
+
+                  <button onClick={handleSaveAdminSettings} className="mt-4 flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded-xl font-medium transition-colors">
+                    <Save size={18} /> Update Interest Rate
+                  </button>
+                </div>
+
+                <div className="pt-6 border-t border-slate-200 dark:border-slate-700">
+                  <h4 className="font-bold text-rose-600 dark:text-rose-400 text-sm mb-1">Reset All Transactions</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Wipe all deposits, loans, repayments, and master wallet withdrawal logs to start fresh with clean test data.</p>
+                  <button 
+                    onClick={handleResetTransactions}
+                    className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-colors shadow-sm"
+                  >
+                    Clear All Transactions & Start Fresh
+                  </button>
                 </div>
                 
                 {saveStatus && (
-                  <p className={`text-sm ${saveStatus.includes('success') ? 'text-green-500' : 'text-red-500'}`}>
+                  <p className={`text-sm ${saveStatus.includes('success') || saveStatus.includes('reset') ? 'text-green-500' : 'text-red-500'}`}>
                     {saveStatus}
                   </p>
                 )}
-                <button onClick={handleSaveAdminSettings} className="mt-4 flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded-xl font-medium transition-colors">
-                  <Save size={18} /> Update Settings
-                </button>
-              </div>
-            </div>
-          )}
-
-          {activeTab !== 'profile' && activeTab !== 'security' && (
-            <div className="mt-8 pt-6 border-t border-[#E5E7EB] dark:border-slate-700 flex justify-end">
-              <button className="flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded-xl font-medium transition-colors">
                 <Save size={18} />
                 {t('settings.save_changes')}
               </button>

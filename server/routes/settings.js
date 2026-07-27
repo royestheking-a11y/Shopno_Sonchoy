@@ -36,4 +36,54 @@ router.put('/', verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
+const Deposit = require('../models/Deposit');
+const Loan = require('../models/Loan');
+const LoanRepayment = require('../models/LoanRepayment');
+const Transaction = require('../models/Transaction');
+const Ledger = require('../models/Ledger');
+const MonthlyClosing = require('../models/MonthlyClosing');
+const MasterWallet = require('../models/MasterWallet');
+const User = require('../models/User');
+
+// Reset all transaction data
+router.post('/reset-transactions', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    await Deposit.deleteMany({});
+    await Loan.deleteMany({});
+    await LoanRepayment.deleteMany({});
+    await Transaction.deleteMany({});
+    await Ledger.deleteMany({});
+    await MonthlyClosing.deleteMany({});
+
+    await MasterWallet.deleteMany({});
+    await MasterWallet.create({
+      balance: 0,
+      totalDeposits: 0,
+      totalLoans: 0,
+      totalWithdrawn: 0,
+      withdrawals: []
+    });
+
+    await User.updateMany(
+      {},
+      {
+        $set: {
+          depositBalance: 0,
+          outstandingLoan: 0,
+          walletBalance: 0,
+          totalDeposits: 0,
+          totalLoans: 0
+        }
+      }
+    );
+
+    const io = req.app.get('io');
+    if (io) io.emit('ticker_update', { type: 'reset_transactions', timestamp: Date.now() });
+
+    res.json({ message: 'All transaction history successfully reset.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;
