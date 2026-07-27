@@ -8,26 +8,30 @@ import { generateDashboardReport } from '../../utils/pdfGenerator';
 import { Skeleton } from './ui/skeleton';
 import { useSocket } from '../../context/SocketContext';
 
+const TakaIcon = ({ size = 18 }: { size?: number }) => (
+  <span className="font-extrabold text-base leading-none select-none">৳</span>
+);
+
 const StatCard = ({ title, value, trend, trendValue, icon: Icon, colorClass }: any) => (
-  <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 flex flex-col justify-between">
-    <div className="flex justify-between items-start">
-      <div>
-        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{title}</p>
-        <h3 className="text-2xl font-bold text-slate-900 dark:text-white mt-1">{value}</h3>
+  <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 flex flex-col justify-between">
+    <div className="flex justify-between items-start gap-2">
+      <div className="min-w-0 flex-1">
+        <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 truncate" title={title}>{title}</p>
+        <h3 className="text-lg xl:text-xl font-extrabold text-slate-900 dark:text-white mt-1.5 whitespace-nowrap overflow-hidden text-ellipsis" title={value}>{value}</h3>
       </div>
-      <div className={cn("p-3 rounded-xl", colorClass)}>
-        <Icon size={20} />
+      <div className={cn("p-2.5 rounded-xl flex items-center justify-center shrink-0 min-w-[38px] min-h-[38px]", colorClass)}>
+        <Icon size={18} />
       </div>
     </div>
     <div className="mt-4 flex items-center gap-1.5">
       <div className={cn(
-        "flex items-center text-xs font-medium px-2 py-0.5 rounded-full",
+        "flex items-center text-xs font-medium px-2 py-0.5 rounded-full shrink-0",
         trend === 'up' ? "text-success bg-success/10" : "text-danger bg-danger/10"
       )}>
         {trend === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
         {trendValue}
       </div>
-      <span className="text-xs text-slate-500 dark:text-slate-400">vs last month</span>
+      <span className="text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap">vs last month</span>
     </div>
   </div>
 );
@@ -216,7 +220,7 @@ export function Dashboard() {
       </div>
 
       {/* Top Section - Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 h-[160px] flex flex-col justify-between">
@@ -237,7 +241,7 @@ export function Dashboard() {
               value={`৳ ${data.currentFund.toLocaleString()}`} 
               trend="up" 
               trendValue="12.5%" 
-              icon={DollarSign}
+              icon={TakaIcon}
               colorClass="bg-primary/10 text-primary"
             />
             <StatCard 
@@ -269,7 +273,7 @@ export function Dashboard() {
               value={`৳ ${data.loanProfit.toLocaleString()}`} 
               trend="up" 
               trendValue="5.0%" 
-              icon={DollarSign}
+              icon={TakaIcon}
               colorClass="bg-green-500/10 text-green-500"
             />
           </>

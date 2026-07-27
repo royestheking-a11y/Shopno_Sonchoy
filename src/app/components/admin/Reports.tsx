@@ -108,8 +108,8 @@ export function Reports() {
 
         <div onClick={handleDownloadCollection} className={`bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 flex justify-between items-center group cursor-pointer hover:border-primary transition-colors ${isDownloading === 'collection' ? 'opacity-50 pointer-events-none' : ''}`}>
           <div>
-            <div className="w-10 h-10 bg-success/10 text-success rounded-xl flex items-center justify-center mb-3">
-              <DollarSign size={20} />
+            <div className="w-10 h-10 bg-success/10 text-success rounded-xl flex items-center justify-center mb-3 font-extrabold text-lg select-none">
+              ৳
             </div>
             <h3 className="font-bold text-slate-900 dark:text-white">{t('admin_reports.collection_report')}</h3>
             <p className="text-xs text-slate-500">{t('admin_reports.all_deposits')}</p>
