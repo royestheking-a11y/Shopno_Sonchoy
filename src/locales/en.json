@@ -35,6 +35,7 @@
     "statement": "Statement",
     "all_time_approved": "All time approved",
     "repayment_pending": "Repayment pending",
+    "no_active_loan": "No active loan",
     "wallet_growth": "Wallet Growth"
   },
   "common": {

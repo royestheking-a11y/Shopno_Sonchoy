@@ -35,6 +35,7 @@
     "statement": "স্টেটমেন্ট",
     "all_time_approved": "সর্বকালীন অনুমোদিত",
     "repayment_pending": "পরিশোধ অপেক্ষমান",
+    "no_active_loan": "কোনো বকেয়া লোন নেই",
     "wallet_growth": "ওয়ালেট বৃদ্ধি"
   },
   "common": {

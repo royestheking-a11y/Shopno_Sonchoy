@@ -158,7 +158,7 @@ export function MemberDashboard({ user }: { user: any }) {
                 </div>
                 <h2 className="text-3xl font-bold text-white mb-6">৳ {(userData.loanBalance || 0).toLocaleString()}</h2>
                 <div className="flex items-center gap-2 text-amber-100 text-xs font-medium bg-white/10 w-fit px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white/5">
-                  {t('dashboard.repayment_pending')}
+                  {(userData.loanBalance || 0) > 0 ? t('dashboard.repayment_pending') : t('dashboard.no_active_loan')}
                 </div>
               </div>
             </div>
