@@ -164,7 +164,7 @@ export function LoanApprovals() {
                   .map(loan => (
                   <tr key={loan._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
-                      <span className="block w-24 truncate" title={loan._id}>{loan._id}</span>
+                      <span className="font-mono text-xs font-bold bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded" title={loan._id}>#{loan._id.toString().slice(-5).toUpperCase()}</span>
                     </td>
                     <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                       <div className="font-medium text-slate-900 dark:text-white">{getUserName(loan.userId)}</div>
@@ -251,7 +251,7 @@ export function LoanApprovals() {
                   .map(repayment => (
                   <tr key={repayment._id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
                     <td className="px-6 py-4 font-medium text-slate-900 dark:text-white">
-                      <span className="block w-24 truncate" title={repayment._id}>{repayment._id}</span>
+                      <span className="font-mono text-xs font-bold bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded" title={repayment._id}>#{repayment._id.toString().slice(-5).toUpperCase()}</span>
                     </td>
                     <td className="px-6 py-4 text-slate-600 dark:text-slate-300">
                       <div className="font-medium text-slate-900 dark:text-white">{getUserName(repayment.userId)}</div>

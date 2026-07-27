@@ -107,7 +107,7 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
       try {
         const loanAmountStr = loan.amount.toLocaleString();
         const interestRateStr = `${loan.interestRate || 5}%`;
-        const loanIdStr = loan._id.toString();
+        const loanIdStr = loan._id.toString().slice(-5).toUpperCase();
         const currentDateStr = new Date().toLocaleDateString();
         const loanBalanceStr = (user.loanBalance || 0).toLocaleString();
         const walletBalanceStr = (user.balance || 0).toLocaleString();
