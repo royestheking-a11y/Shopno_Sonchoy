@@ -23,11 +23,21 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     // We only need the origin for the socket connection
     const socketUrl = new URL(apiUrl).origin;
     
-    const newSocket = io(socketUrl);
+    const newSocket = io(socketUrl, {
+      transports: ['websocket', 'polling'],
+      withCredentials: true,
+      autoConnect: true,
+      reconnectionAttempts: 10,
+      reconnectionDelay: 1000
+    });
     setSocket(newSocket);
 
     newSocket.on('connect', () => {
       console.log('Socket connected:', newSocket.id);
+    });
+
+    newSocket.on('connect_error', (err) => {
+      console.warn('Socket connection error:', err.message);
     });
 
     newSocket.on('data_updated', () => {

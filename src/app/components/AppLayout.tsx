@@ -9,7 +9,7 @@ import { cn } from './Layout';
 import { useTranslation } from 'react-i18next';
 
 import api from '../../utils/api';
-import { io } from 'socket.io-client';
+import { useSocket } from '../../context/SocketContext';
 import { subscribeUserToPush } from '../../utils/push';
 
 const ADMIN_SIDEBAR = [
@@ -44,29 +44,28 @@ export function AppLayout({ user }: { user: any }) {
   const [broadcasts, setBroadcasts] = useState<any[]>([]);
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const { socket } = useSocket();
 
   useEffect(() => {
     fetchBroadcasts();
 
-    // Setup Socket.IO connection
-    const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001';
-    const socket = io(BACKEND_URL);
+    if (!socket) return;
     
-    socket.on('new_broadcast', (broadcast: any) => {
-      // Add the new broadcast to the state
+    const handleNewBroadcast = (broadcast: any) => {
       setBroadcasts(prev => {
-        // Ensure it doesn't already exist to prevent duplicates
         if (!prev.find(b => b._id === broadcast._id)) {
           return [broadcast, ...prev];
         }
         return prev;
       });
-    });
+    };
+
+    socket.on('new_broadcast', handleNewBroadcast);
 
     return () => {
-      socket.disconnect();
+      socket.off('new_broadcast', handleNewBroadcast);
     };
-  }, []);
+  }, [socket]);
 
   // Subscribe to push notifications if permitted
   useEffect(() => {
