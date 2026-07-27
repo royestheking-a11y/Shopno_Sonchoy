@@ -148,17 +148,7 @@ export function MasterWallet() {
               </div>
             </div>
 
-            {/* Stat Card 1: Lifetime Withdrawals */}
-            <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 hover:border-rose-500/30 transition-all">
-              <div className="w-12 h-12 bg-rose-500/10 text-rose-500 rounded-2xl flex items-center justify-center mb-4">
-                <ArrowUpRight size={24} />
-              </div>
-              <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Total Withdrawn</p>
-              <h3 className="text-2xl font-bold text-slate-900 dark:text-white">৳ {totalWithdrawn.toLocaleString()}</h3>
-              <p className="text-xs text-rose-500 font-medium mt-2">Expenses & Admin Payouts</p>
-            </div>
-
-            {/* Stat Card 2: Total Deposits */}
+            {/* Stat Card 1: Total Member Deposits */}
             <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 hover:border-emerald-500/30 transition-all">
               <div className="w-12 h-12 bg-emerald-500/10 text-emerald-500 rounded-2xl flex items-center justify-center mb-4">
                 <ArrowDownRight size={24} />
@@ -168,7 +158,7 @@ export function MasterWallet() {
               <p className="text-xs text-slate-500 mt-2">{t('admin_master_wallet.total_deposits_desc')}</p>
             </div>
 
-            {/* Stat Card 3: Active Loans */}
+            {/* Stat Card 2: Active Loans Disbursed */}
             <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 hover:border-amber-500/30 transition-all">
               <div className="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-2xl flex items-center justify-center mb-4">
                 <TrendingUp size={24} />
@@ -178,7 +168,17 @@ export function MasterWallet() {
               <p className="text-xs text-slate-500 mt-2">{t('admin_master_wallet.active_loans_desc')}</p>
             </div>
 
-            {/* Stat Card 4: Fund Utilization */}
+            {/* Stat Card 3: Total Withdrawn (Set after Active Loans Disbursed) */}
+            <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 hover:border-rose-500/30 transition-all">
+              <div className="w-12 h-12 bg-rose-500/10 text-rose-500 rounded-2xl flex items-center justify-center mb-4">
+                <ArrowUpRight size={24} />
+              </div>
+              <p className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-1">Total Withdrawn</p>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white">৳ {totalWithdrawn.toLocaleString()}</h3>
+              <p className="text-xs text-rose-500 font-medium mt-2">Expenses & Admin Payouts</p>
+            </div>
+
+            {/* Stat Card 4: Fund Utilization Rate */}
             <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 hover:border-primary/30 transition-all">
               <div className="w-12 h-12 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mb-4">
                 <PieChart size={24} />
@@ -242,7 +242,7 @@ export function MasterWallet() {
             </div>
           </div>
 
-          <div className="pt-2 flex justify-end">
+          <div className="pt-2 flex justify-start">
             <button
               type="submit"
               disabled={isWithdrawing}
@@ -337,7 +337,7 @@ export function MasterWallet() {
                     <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400">
                       <div className="flex items-center gap-1.5">
                         <Calendar size={13} className="text-slate-400" />
-                        <span>{new Date(w.createdAt).toLocaleString()}</span>
+                        <span>{new Date(w.date || w.createdAt || Date.now()).toLocaleString()}</span>
                       </div>
                     </td>
 
