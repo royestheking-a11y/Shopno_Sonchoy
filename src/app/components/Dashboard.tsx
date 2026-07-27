@@ -13,25 +13,25 @@ const TakaIcon = ({ size = 18 }: { size?: number }) => (
 );
 
 const StatCard = ({ title, value, trend, trendValue, icon: Icon, colorClass }: any) => (
-  <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 flex flex-col justify-between">
+  <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 flex flex-col justify-between hover:border-primary/30 transition-all">
     <div className="flex justify-between items-start gap-2">
-      <div className="min-w-0 flex-1">
-        <p className="text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400 truncate" title={title}>{title}</p>
-        <h3 className="text-lg xl:text-xl font-extrabold text-slate-900 dark:text-white mt-1.5 whitespace-nowrap overflow-hidden text-ellipsis" title={value}>{value}</h3>
+      <div>
+        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-tight mb-1">{title}</p>
+        <h3 className="text-lg sm:text-xl xl:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">{value}</h3>
       </div>
       <div className={cn("p-2.5 rounded-xl flex items-center justify-center shrink-0 min-w-[38px] min-h-[38px]", colorClass)}>
         <Icon size={18} />
       </div>
     </div>
-    <div className="mt-4 flex items-center gap-1.5">
+    <div className="mt-4 flex items-center gap-1.5 pt-2 border-t border-slate-100 dark:border-slate-700/60">
       <div className={cn(
-        "flex items-center text-xs font-medium px-2 py-0.5 rounded-full shrink-0",
+        "flex items-center text-xs font-bold px-2 py-0.5 rounded-full shrink-0",
         trend === 'up' ? "text-success bg-success/10" : "text-danger bg-danger/10"
       )}>
         {trend === 'up' ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
         {trendValue}
       </div>
-      <span className="text-[11px] text-slate-400 dark:text-slate-500 whitespace-nowrap">vs last month</span>
+      <span className="text-[11px] text-slate-400 dark:text-slate-500 font-medium">vs last month</span>
     </div>
   </div>
 );
@@ -220,7 +220,7 @@ export function Dashboard() {
       </div>
 
       {/* Top Section - Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 h-[160px] flex flex-col justify-between">
