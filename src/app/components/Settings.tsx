@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Save, User, Bell, Lock, Shield } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../../utils/api';
+
 export function Settings({ user }: { user: any }) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('profile');
@@ -58,11 +59,25 @@ export function Settings({ user }: { user: any }) {
     }
   };
 
+  const handleResetTransactions = async () => {
+    if (!window.confirm("ARE YOU SURE? This will permanently delete all deposit, loan, repayment, and expense records, and reset master wallet & member balances to 0 so you can start fresh!")) {
+      return;
+    }
+    try {
+      setSaveStatus('Resetting all transactions...');
+      await api.post('/settings/reset-transactions');
+      setSaveStatus('All transactions successfully reset! System is 100% clean.');
+      setTimeout(() => setSaveStatus(''), 4000);
+    } catch (err: any) {
+      setSaveStatus(err.response?.data?.error || 'Failed to reset transactions');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{t('settings.title')}</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400">{t('settings.subtitle')}</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{t('sidebar.settings')}</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400">Manage your account preferences and system settings.</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
@@ -144,21 +159,6 @@ export function Settings({ user }: { user: any }) {
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Address</label>
                   <input type="text" defaultValue={userData.address || '-'} disabled className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-900 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none text-slate-500 cursor-not-allowed" />
-                </div>
-            <div className="max-w-xl space-y-6">
-              <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Personal Information</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{t('settings.full_name')}</label>
-                  <input type="text" readOnly value={userData.name || ''} className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-900/80 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none text-slate-500 cursor-not-allowed" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{t('settings.email')}</label>
-                  <input type="email" readOnly value={userData.email || ''} className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-900/80 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none text-slate-500 cursor-not-allowed" />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{t('settings.phone')}</label>
-                  <input type="text" readOnly value={userData.mobile || 'Not set'} className="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-900/80 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none text-slate-500 cursor-not-allowed" />
                 </div>
               </div>
             </div>
@@ -247,9 +247,7 @@ export function Settings({ user }: { user: any }) {
                     {saveStatus}
                   </p>
                 )}
-                <Save size={18} />
-                {t('settings.save_changes')}
-              </button>
+              </div>
             </div>
           )}
         </div>
