@@ -19,7 +19,7 @@ export function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/auth/login', { email: email.trim(), password });
       localStorage.setItem('shopno_auth', JSON.stringify(response.data));
       window.location.href = '/';
     } catch (err: any) {
@@ -41,7 +41,7 @@ export function Login() {
         });
         setScanSuccess(true);
         setTimeout(() => {
-          localStorage.setItem('token', res.data.token);
+          localStorage.setItem('shopno_auth', JSON.stringify(res.data));
           window.location.href = '/';
         }, 1000);
       } catch (err) {

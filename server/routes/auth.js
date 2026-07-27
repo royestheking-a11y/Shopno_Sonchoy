@@ -6,14 +6,34 @@ const bcrypt = require('bcrypt');
 
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'User not found' });
+    let { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email/Member ID and password are required' });
+    }
 
-    const validPassword = await user.comparePassword(password);
-    if (!validPassword) return res.status(400).json({ message: 'Invalid credentials' });
+    const input = email.toString().trim();
+    const cleanPassword = password.toString();
 
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1d' });
+    // Search by case-insensitive email, exact memberId, or phone
+    const user = await User.findOne({
+      $or: [
+        { email: { $regex: new RegExp(`^${input.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') } },
+        { memberId: input },
+        { phone: input }
+      ]
+    });
+
+    if (!user) {
+      return res.status(400).json({ message: 'User not found with provided Email or Member ID' });
+    }
+
+    const validPassword = await user.comparePassword(cleanPassword);
+    if (!validPassword) {
+      return res.status(400).json({ message: 'Invalid credentials. Please check your password.' });
+    }
+
+    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET || 'secret_key', { expiresIn: '1d' });
     
     // Return user info excluding password
     const userObj = user.toObject();
