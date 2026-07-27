@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Wallet, TrendingUp, ArrowDownRight, ShieldCheck, PieChart, ArrowUpRight, Receipt, Search, Calendar, User as UserIcon, CheckCircle2 } from 'lucide-react';
+import { Wallet, TrendingUp, ArrowDownRight, ShieldCheck, PieChart, ArrowUpRight, Receipt, Search, Calendar, User as UserIcon, CheckCircle2, Download } from 'lucide-react';
 import api from '../../../utils/api';
 import { useTranslation } from 'react-i18next';
 import { Skeleton } from '../ui/skeleton';
 import { useSocket } from '../../../context/SocketContext';
 import { toast } from 'sonner';
+import { generateWithdrawalExpenseReport } from '../../../utils/pdfGenerator';
 
 export function MasterWallet() {
   const { t } = useTranslation();
@@ -21,6 +22,20 @@ export function MasterWallet() {
   const [withdrawAmount, setWithdrawAmount] = useState('');
   const [withdrawReason, setWithdrawReason] = useState('');
   const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadPdf = () => {
+    try {
+      setIsDownloading(true);
+      generateWithdrawalExpenseReport(withdrawals, totalWithdrawn, t);
+      toast.success("Withdrawal & Expense Report PDF downloaded!");
+    } catch (err) {
+      console.error("PDF generation failed", err);
+      toast.error("Failed to generate PDF statement.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   useEffect(() => {
     fetchWalletData();
@@ -263,15 +278,26 @@ export function MasterWallet() {
             <p className="text-xs text-slate-500 dark:text-slate-400">Complete audit log of all master wallet withdrawals and expenses.</p>
           </div>
 
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <input
-              type="text"
-              placeholder="Search by reason or admin..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-xs outline-none focus:border-primary dark:text-white"
-            />
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+            <button
+              onClick={handleDownloadPdf}
+              disabled={isDownloading || withdrawals.length === 0}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm disabled:opacity-50"
+            >
+              <Download size={15} className={isDownloading ? "animate-bounce" : ""} />
+              <span>{isDownloading ? "Generating PDF..." : "Download Expense PDF"}</span>
+            </button>
+
+            <div className="relative w-full sm:w-60">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+              <input
+                type="text"
+                placeholder="Search by reason or admin..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-xs outline-none focus:border-primary dark:text-white"
+              />
+            </div>
           </div>
         </div>
 
