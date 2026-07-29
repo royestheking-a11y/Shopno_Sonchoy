@@ -51,6 +51,7 @@ export function Dashboard() {
     savingsData: [] as any[]
   });
   const [loading, setLoading] = useState(true);
+  const [processingId, setProcessingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -169,6 +170,8 @@ export function Dashboard() {
   };
 
   const handleApprove = async (item: any) => {
+    if (processingId) return;
+    setProcessingId(item._id);
     try {
       if (item.kind === t('admin_dashboard.loan_request')) {
         await api.put(`/loans/${item._id}/status`, { status: 'approved' });
@@ -180,10 +183,14 @@ export function Dashboard() {
       fetchData();
     } catch (err) {
       console.error('Failed to approve', err);
+    } finally {
+      setProcessingId(null);
     }
   };
 
   const handleReject = async (item: any) => {
+    if (processingId) return;
+    setProcessingId(item._id);
     try {
       if (item.kind === t('admin_dashboard.loan_request')) {
         await api.put(`/loans/${item._id}/status`, { status: 'rejected' });
@@ -195,6 +202,8 @@ export function Dashboard() {
       fetchData();
     } catch (err) {
       console.error('Failed to reject', err);
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -419,8 +428,20 @@ export function Dashboard() {
                   <p className="text-sm font-bold text-slate-900 dark:text-white">৳ {item.amount.toLocaleString()}</p>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => handleApprove(item)} className="flex-1 py-1.5 bg-primary text-white text-xs font-medium rounded-md hover:bg-primary-dark transition-colors">{t('admin_dashboard.approve')}</button>
-                  <button onClick={() => handleReject(item)} className="flex-1 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">{t('admin_dashboard.reject')}</button>
+                  <button 
+                    onClick={() => handleApprove(item)} 
+                    disabled={processingId === item._id}
+                    className="flex-1 py-1.5 bg-primary text-white text-xs font-medium rounded-md hover:bg-primary-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {processingId === item._id ? 'Processing...' : t('admin_dashboard.approve')}
+                  </button>
+                  <button 
+                    onClick={() => handleReject(item)} 
+                    disabled={processingId === item._id}
+                    className="flex-1 py-1.5 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium rounded-md hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {t('admin_dashboard.reject')}
+                  </button>
                 </div>
               </div>
             ))}

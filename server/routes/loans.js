@@ -121,7 +121,8 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
       loan.approvalDate = new Date();
       
       const user = await User.findById(loan.userId);
-      const loanWithInterest = loan.amount + (loan.amount * (loan.interestRate / 100));
+      const activeInterestRate = loan.interestRate !== undefined ? loan.interestRate : 5;
+      const loanWithInterest = loan.amount + (loan.amount * (activeInterestRate / 100));
       user.loanBalance += loanWithInterest;
       // We assume loan is transferred outside or to wallet. Usually outside (bKash/Bank). 
       // User requested withdrawal as a loan.
