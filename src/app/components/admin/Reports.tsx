@@ -312,10 +312,10 @@ export function Reports() {
                 </span>
               </div>
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('admin_reports.lifetime_deposits')}</p>
-              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">৳ {totalDepositsVolume.toLocaleString()}</h3>
-              <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700/60">
-                <span>Monthly: <strong className="text-emerald-600 dark:text-emerald-400">৳ {monthlyDeposits.toLocaleString()}</strong></span>
-                <span>Yearly: <strong className="text-slate-900 dark:text-white">৳ {yearlyDeposits.toLocaleString()}</strong></span>
+              <h3 title={`৳ ${totalDepositsVolume.toLocaleString()}`} className="text-2xl font-extrabold text-slate-900 dark:text-white truncate">৳ {totalDepositsVolume.toLocaleString()}</h3>
+              <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700/60 gap-2">
+                <span className="truncate flex-1" title={`৳ ${monthlyDeposits.toLocaleString()}`}>Monthly: <strong className="text-emerald-600 dark:text-emerald-400">৳ {monthlyDeposits.toLocaleString()}</strong></span>
+                <span className="truncate flex-1 text-right" title={`৳ ${yearlyDeposits.toLocaleString()}`}>Yearly: <strong className="text-slate-900 dark:text-white">৳ {yearlyDeposits.toLocaleString()}</strong></span>
               </div>
             </div>
 
@@ -330,10 +330,10 @@ export function Reports() {
                 </span>
               </div>
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('admin_reports.lifetime_loans')}</p>
-              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">৳ {totalLoansDisbursed.toLocaleString()}</h3>
-              <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700/60">
-                <span>Repaid: <strong className="text-emerald-600 dark:text-emerald-400">৳ {totalRepaymentsVolume.toLocaleString()}</strong></span>
-                <span>Yearly: <strong className="text-slate-900 dark:text-white">৳ {yearlyLoans.toLocaleString()}</strong></span>
+              <h3 title={`৳ ${totalLoansDisbursed.toLocaleString()}`} className="text-2xl font-extrabold text-slate-900 dark:text-white truncate">৳ {totalLoansDisbursed.toLocaleString()}</h3>
+              <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700/60 gap-2">
+                <span className="truncate flex-1" title={`৳ ${totalRepaymentsVolume.toLocaleString()}`}>Repaid: <strong className="text-emerald-600 dark:text-emerald-400">৳ {totalRepaymentsVolume.toLocaleString()}</strong></span>
+                <span className="truncate flex-1 text-right" title={`৳ ${yearlyLoans.toLocaleString()}`}>Yearly: <strong className="text-slate-900 dark:text-white">৳ {yearlyLoans.toLocaleString()}</strong></span>
               </div>
             </div>
 
@@ -348,10 +348,10 @@ export function Reports() {
                 </span>
               </div>
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{t('admin_reports.master_expenses')}</p>
-              <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">৳ {totalExpensesVolume.toLocaleString()}</h3>
-              <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700/60">
-                <span>Logs Recorded: <strong className="text-slate-900 dark:text-white">{withdrawals.length}</strong></span>
-                <span className="text-rose-500 font-semibold">Operational Costs</span>
+              <h3 title={`৳ ${totalExpensesVolume.toLocaleString()}`} className="text-2xl font-extrabold text-slate-900 dark:text-white truncate">৳ {totalExpensesVolume.toLocaleString()}</h3>
+              <div className="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-3 border-t border-slate-100 dark:border-slate-700/60 gap-2">
+                <span className="truncate flex-1">Logs Recorded: <strong className="text-slate-900 dark:text-white">{withdrawals.length}</strong></span>
+                <span className="text-rose-500 font-semibold truncate flex-1 text-right">Operational Costs</span>
               </div>
             </div>
 
