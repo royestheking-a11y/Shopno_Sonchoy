@@ -58,12 +58,13 @@ export function Dashboard() {
 
   const fetchData = async () => {
     try {
-      const [usersRes, depositsRes, loansRes, walletRes, txnsRes] = await Promise.all([
+      const [usersRes, depositsRes, loansRes, walletRes, txnsRes, profitRes] = await Promise.all([
         api.get('/users'),
         api.get('/deposits'),
         api.get('/loans'),
         api.get('/masterwallets'),
-        api.get('/transactions')
+        api.get('/transactions'),
+        api.get('/loans/system-profit')
       ]);
 
       const users = usersRes.data.filter((u: any) => u.role === 'member');
@@ -92,7 +93,7 @@ export function Dashboard() {
 
       const totalLoans = loans.filter((l: any) => ['approved', 'active'].includes(l.status)).reduce((sum: number, l: any) => sum + l.amount, 0);
 
-      const totalProfit = loans.filter((l: any) => l.status === 'repaid').reduce((sum: number, l: any) => sum + (l.amount * ((l.interestRate || 5) / 100)), 0);
+      const totalProfit = profitRes.data.totalProfit || 0;
 
       const pendingDeposits = deposits.filter((txn: any) => txn.status === 'pending').map((txn: any) => ({ ...txn, kind: t('admin_dashboard.deposit'), isTxnRoute: false }));
       const pendingWithdrawals = txns.filter((txn: any) => txn.status === 'pending' && txn.type === 'withdraw').map((txn: any) => ({ ...txn, kind: 'Withdrawal', isTxnRoute: true }));

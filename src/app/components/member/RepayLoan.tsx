@@ -14,6 +14,7 @@ export function RepayLoan({ user }: { user: any }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userData, setUserData] = useState(user);
   const [activeLoanId, setActiveLoanId] = useState<string | null>(null);
+  const [loanBreakdown, setLoanBreakdown] = useState<{ principal: number, interest: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasPendingRepayment, setHasPendingRepayment] = useState(false);
 
@@ -30,6 +31,19 @@ export function RepayLoan({ user }: { user: any }) {
         const activeLoan = loansRes.data.find((l: any) => l.status === 'active' || l.status === 'approved');
         if (activeLoan) {
           setActiveLoanId(activeLoan._id);
+          
+          const approvedRepayments = (repaymentsRes.data || []).filter((r: any) => r.loanId === activeLoan._id && r.status === 'approved');
+          const totalRepaid = approvedRepayments.reduce((sum: number, r: any) => sum + r.amount, 0);
+          
+          const principal = activeLoan.amount;
+          const totalInterest = principal * ((activeLoan.interestRate || 5) / 100);
+          const interestPaid = Math.min(totalRepaid, totalInterest);
+          const principalPaid = totalRepaid - interestPaid;
+          
+          setLoanBreakdown({
+            principal: Math.max(0, principal - principalPaid),
+            interest: Math.max(0, totalInterest - interestPaid)
+          });
         }
 
         const pending = (repaymentsRes.data || []).some((r: any) => r.status === 'pending');
@@ -125,7 +139,16 @@ export function RepayLoan({ user }: { user: any }) {
             {loading ? (
               <Skeleton className="h-8 w-32 mt-1" />
             ) : (
-              <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">৳ {(userData.loanBalance || 0).toLocaleString()}</p>
+              <div>
+                <p className="text-2xl font-bold text-amber-900 dark:text-amber-100">৳ {(userData.loanBalance || 0).toLocaleString()}</p>
+                {loanBreakdown && (
+                  <p className="text-xs font-medium text-amber-700/80 dark:text-amber-400/80 mt-1 flex gap-2">
+                    <span>Principal: ৳ {loanBreakdown.principal.toLocaleString()}</span>
+                    <span>•</span>
+                    <span>Interest: ৳ {loanBreakdown.interest.toLocaleString()}</span>
+                  </p>
+                )}
+              </div>
             )}
           </div>
         </div>

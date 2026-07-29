@@ -45,8 +45,18 @@ function calcProfitFirst(loan, totalRepaid, payment) {
 // Get system profit stats
 router.get('/system-profit', verifyToken, async (req, res) => {
   try {
-    const loans = await Loan.find({ status: 'repaid' });
-    const totalProfit = loans.reduce((sum, l) => sum + (l.amount * ((l.interestRate || 5) / 100)), 0);
+    const loans = await Loan.find({ status: { $in: ['active', 'approved', 'repaid'] } });
+    let totalProfit = 0;
+
+    // Sum profit from all loans based on profit-first calculation
+    for (let loan of loans) {
+      const repayments = await LoanRepayment.find({ loanId: loan._id, status: 'approved' });
+      const totalRepaid = repayments.reduce((s, r) => s + r.amount, 0);
+      
+      const { profitPaid } = calcProfitFirst(loan, 0, totalRepaid);
+      totalProfit += profitPaid;
+    }
+
     const activeMembers = await User.countDocuments({ role: 'member', status: 'active' }) || await User.countDocuments({ role: 'member' });
     res.json({ totalProfit, activeMembers });
   } catch (err) {
