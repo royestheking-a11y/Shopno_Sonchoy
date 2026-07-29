@@ -111,7 +111,7 @@ export function MemberDashboard({ user }: { user: any }) {
                   <Wallet size={18} />
                   <span className="font-medium text-sm">{t('dashboard.wallet_balance')}</span>
                 </div>
-                <h2 className="text-3xl font-bold text-white mb-2">৳ {((userData.balance || 0) + profitShare).toLocaleString()}</h2>
+                <h2 title={`৳ ${((userData.balance || 0) + profitShare).toLocaleString()}`} className="text-3xl font-bold text-white mb-2 truncate">৳ {((userData.balance || 0) + profitShare).toLocaleString()}</h2>
                 <div className="flex flex-wrap gap-2 mb-6">
                   <p className="text-xs text-blue-300 font-medium backdrop-blur-sm bg-black/10 w-fit px-2 py-1 rounded-md">
                     ৳ {(userData.balance || 0).toLocaleString()} from deposits
@@ -139,7 +139,7 @@ export function MemberDashboard({ user }: { user: any }) {
                   <PiggyBank size={18} />
                   <span className="font-medium text-sm">{t('dashboard.total_deposit')}</span>
                 </div>
-                <h2 className="text-3xl font-bold text-white mb-6">৳ {totalDeposits.toLocaleString()}</h2>
+                <h2 title={`৳ ${totalDeposits.toLocaleString()}`} className="text-3xl font-bold text-white mb-6 truncate">৳ {totalDeposits.toLocaleString()}</h2>
                 <div className="flex items-center gap-2 text-emerald-100 text-xs font-medium bg-white/10 w-fit px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white/5">
                   <ArrowUpRight size={14} />
                   {t('dashboard.all_time_approved')}
@@ -156,7 +156,7 @@ export function MemberDashboard({ user }: { user: any }) {
                   <Clock size={18} />
                   <span className="font-medium text-sm">{t('dashboard.total_loan')}</span>
                 </div>
-                <h2 className="text-3xl font-bold text-white mb-6">৳ {(userData.loanBalance || 0).toLocaleString()}</h2>
+                <h2 title={`৳ ${(userData.loanBalance || 0).toLocaleString()}`} className="text-3xl font-bold text-white mb-6 truncate">৳ {(userData.loanBalance || 0).toLocaleString()}</h2>
                 <div className="flex items-center gap-2 text-amber-100 text-xs font-medium bg-white/10 w-fit px-3 py-1.5 rounded-lg backdrop-blur-sm border border-white/5">
                   {(userData.loanBalance || 0) > 0 ? t('dashboard.repayment_pending') : t('dashboard.no_active_loan')}
                 </div>

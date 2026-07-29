@@ -15,9 +15,9 @@ const TakaIcon = ({ size = 18 }: { size?: number }) => (
 const StatCard = ({ title, value, trend, trendValue, icon: Icon, colorClass }: any) => (
   <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-premium border border-[#E5E7EB] dark:border-slate-700 flex flex-col justify-between hover:border-primary/30 transition-all">
     <div className="flex justify-between items-start gap-2">
-      <div>
-        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-tight mb-1">{title}</p>
-        <h3 className="text-lg sm:text-xl xl:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">{value}</h3>
+      <div className="min-w-0 flex-1 overflow-hidden">
+        <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 leading-tight mb-1 truncate">{title}</p>
+        <h3 title={value} className="text-lg sm:text-xl xl:text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight truncate">{value}</h3>
       </div>
       <div className={cn("p-2.5 rounded-xl flex items-center justify-center shrink-0 min-w-[38px] min-h-[38px]", colorClass)}>
         <Icon size={18} />
