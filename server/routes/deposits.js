@@ -152,4 +152,68 @@ router.put('/:id/status', verifyToken, verifyAdmin, async (req, res) => {
   }
 });
 
+// Admin bypass deposit (auto approved)
+router.post('/admin-bypass', verifyToken, verifyAdmin, async (req, res) => {
+  try {
+    const { userId, amount, date, method, reference } = req.body;
+    
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Valid amount is required' });
+    }
+
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const deposit = new Deposit({
+      userId,
+      amount,
+      date: date || new Date(),
+      method: method || 'admin_bypass',
+      reference: reference || 'Added by Admin',
+      status: 'approved',
+      approvedAt: new Date(),
+      approvedBy: req.user.id
+    });
+    
+    await deposit.save();
+
+    // Update User balance
+    user.balance += deposit.amount;
+    await user.save();
+
+    // Update Master Wallet
+    let masterWallet = await MasterWallet.findOne();
+    if (!masterWallet) masterWallet = new MasterWallet();
+    masterWallet.balance += deposit.amount;
+    masterWallet.lastUpdated = new Date();
+    masterWallet.updatedBy = req.user.id;
+    await masterWallet.save();
+
+    // Create Ledger entry
+    const ledgerEntry = new Ledger({
+      type: 'deposit',
+      description: `Admin Bypass Deposit for User ${user.memberId || user.name}`,
+      debitAccount: 'User Wallet / External',
+      debitAmount: deposit.amount,
+      creditAccount: 'Master Wallet',
+      creditAmount: deposit.amount,
+      referenceId: deposit._id
+    });
+    await ledgerEntry.save();
+
+    const io = req.app.get('io');
+    if (io) io.emit('data_updated');
+
+    res.status(201).json(deposit);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 module.exports = router;

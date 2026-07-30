@@ -41,9 +41,12 @@ export function Members() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [isCredentialsModalOpen, setIsCredentialsModalOpen] = useState(false);
+  const [isAddDepositModalOpen, setIsAddDepositModalOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   
   const [selectedMember, setSelectedMember] = useState<any>(null);
+  const [depositAmount, setDepositAmount] = useState('');
+  const [depositDate, setDepositDate] = useState('');
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterSort, setFilterSort] = useState('all');
@@ -102,6 +105,14 @@ export function Members() {
     setSelectedMember(member);
     setFormData({ ...emptyForm, password: '' });
     setIsPasswordModalOpen(true);
+    setActiveDropdown(null);
+  };
+
+  const handleOpenAddDeposit = (member: any) => {
+    setSelectedMember(member);
+    setDepositAmount('');
+    setDepositDate(new Date().toISOString().split('T')[0]); // Default to today
+    setIsAddDepositModalOpen(true);
     setActiveDropdown(null);
   };
 
@@ -177,6 +188,30 @@ export function Members() {
     } catch (err: any) {
       console.error('Failed to reset password', err);
       toast.error(err.response?.data?.message || 'Error updating password');
+    }
+  };
+
+  const handleAdminAddDeposit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!depositAmount || Number(depositAmount) <= 0) {
+      toast.error('Please enter a valid amount');
+      return;
+    }
+    try {
+      const memberId = selectedMember._id || selectedMember.id;
+      await api.post('/deposits/admin-bypass', {
+        userId: memberId,
+        amount: Number(depositAmount),
+        date: new Date(depositDate).toISOString(),
+        method: 'admin_bypass',
+        reference: 'Admin Direct Add'
+      });
+      toast.success(`Deposit of ৳${depositAmount} added and auto-approved successfully!`);
+      setIsAddDepositModalOpen(false);
+      fetchMembers();
+    } catch (err: any) {
+      console.error('Failed to add deposit', err);
+      toast.error(err.response?.data?.error || 'Error adding deposit');
     }
   };
 
@@ -334,6 +369,9 @@ export function Members() {
                       <>
                         <div className="fixed inset-0 z-40" onClick={() => setActiveDropdown(null)}></div>
                         <div className="absolute right-8 top-12 z-50 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-[#E5E7EB] dark:border-slate-700 py-1 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                          <button onClick={() => handleOpenAddDeposit(member)} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors">
+                            <Plus size={16} /> Add Deposit
+                          </button>
                           <button onClick={() => handleOpenEdit(member)} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                             <Edit size={16} /> {t('admin_members.edit_profile')}
                           </button>
@@ -502,6 +540,25 @@ export function Members() {
             <input required type="password" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-primary dark:text-white" placeholder="••••••••" />
           </div>
           <button type="submit" className="w-full mt-6 bg-amber-500 hover:bg-amber-600 text-white py-3 rounded-xl font-semibold transition-all">{t('admin_members.confirm_reset')}</button>
+        </form>
+      </Modal>
+
+      {/* Add Deposit Modal */}
+      <Modal isOpen={isAddDepositModalOpen} onClose={() => setIsAddDepositModalOpen(false)} title={`Add Deposit for ${selectedMember?.name}`}>
+        <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200 text-sm rounded-lg flex gap-2 items-start">
+          <ShieldCheck className="shrink-0 mt-0.5" size={16} />
+          <p>This will create and auto-approve a deposit, bypassing standard member requests.</p>
+        </div>
+        <form onSubmit={handleAdminAddDeposit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">Deposit Date</label>
+            <input required type="date" value={depositDate} onChange={(e) => setDepositDate(e.target.value)} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-primary dark:text-white" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1.5 text-slate-700 dark:text-slate-300">Amount (৳)</label>
+            <input required type="number" min="1" value={depositAmount} onChange={(e) => setDepositAmount(e.target.value)} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:border-primary dark:text-white" placeholder="500" />
+          </div>
+          <button type="submit" className="w-full mt-6 bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-semibold transition-all shadow-md">Add & Approve Deposit</button>
         </form>
       </Modal>
 

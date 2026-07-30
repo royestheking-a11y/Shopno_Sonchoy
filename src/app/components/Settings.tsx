@@ -1,7 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Save, User, Bell, Lock, Shield } from 'lucide-react';
+import { Save, User, Bell, Lock, Shield, X, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import api from '../../utils/api';
+
+const Modal = ({ isOpen, onClose, title, children }: any) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-opacity">
+      <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex justify-between items-center p-5 border-b border-[#E5E7EB] dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/50 sticky top-0 z-10">
+          <h3 className="font-bold text-lg text-slate-900 dark:text-white">{title}</h3>
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="p-6">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export function Settings({ user }: { user: any }) {
   const { t } = useTranslation();
@@ -11,6 +30,8 @@ export function Settings({ user }: { user: any }) {
   const [userData, setUserData] = useState(user);
   const [interestRate, setInterestRate] = useState(5);
   const [saveStatus, setSaveStatus] = useState('');
+  
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
 
   useEffect(() => {
     // Fetch fresh user data
@@ -60,16 +81,15 @@ export function Settings({ user }: { user: any }) {
   };
 
   const handleResetTransactions = async () => {
-    if (!window.confirm("ARE YOU SURE? This will permanently delete all deposit, loan, repayment, and expense records, and reset master wallet & member balances to 0 so you can start fresh!")) {
-      return;
-    }
     try {
       setSaveStatus('Resetting all transactions...');
+      setIsResetModalOpen(false);
       await api.post('/settings/reset-transactions');
       setSaveStatus('All transactions successfully reset! System is 100% clean.');
       setTimeout(() => setSaveStatus(''), 4000);
     } catch (err: any) {
       setSaveStatus(err.response?.data?.error || 'Failed to reset transactions');
+      setIsResetModalOpen(false);
     }
   };
 
@@ -235,7 +255,7 @@ export function Settings({ user }: { user: any }) {
                   <h4 className="font-bold text-rose-600 dark:text-rose-400 text-sm mb-1">Reset All Transactions</h4>
                   <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">Wipe all deposits, loans, repayments, and master wallet withdrawal logs to start fresh with clean test data.</p>
                   <button 
-                    onClick={handleResetTransactions}
+                    onClick={() => setIsResetModalOpen(true)}
                     className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition-colors shadow-sm"
                   >
                     Clear All Transactions & Start Fresh
@@ -252,6 +272,32 @@ export function Settings({ user }: { user: any }) {
           )}
         </div>
       </div>
+
+      <Modal isOpen={isResetModalOpen} onClose={() => setIsResetModalOpen(false)} title="Confirm Action">
+        <div className="flex flex-col items-center text-center">
+          <div className="w-16 h-16 bg-rose-100 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-full flex items-center justify-center mb-4">
+            <AlertTriangle size={32} />
+          </div>
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Are you absolutely sure?</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+            This action will permanently delete all deposit, loan, repayment, and expense records. Master wallet and member balances will be reset to 0. This cannot be undone.
+          </p>
+          <div className="flex gap-3 w-full">
+            <button
+              onClick={() => setIsResetModalOpen(false)}
+              className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 rounded-xl font-semibold transition-colors"
+            >
+              Reject / Cancel
+            </button>
+            <button
+              onClick={handleResetTransactions}
+              className="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-semibold transition-colors"
+            >
+              Confirm Reset
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
