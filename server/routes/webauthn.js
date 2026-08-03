@@ -26,33 +26,26 @@ const auth = async (req, res, next) => {
 const rpName = 'Shopno Sonchoy';
 
 const getWebAuthnConfig = (req) => {
-  // Use X-Forwarded-Host if behind a proxy like Render, otherwise use req.hostname
-  const hostname = req.headers['x-forwarded-host'] || req.hostname;
+  // WebAuthn relies on the domain where the frontend is hosted, not the backend API
+  // We extract the exact frontend domain from the Origin or Referer header
+  const originHeader = req.headers.origin || req.headers.referer || '';
   
-  // Use X-Forwarded-Proto to determine https vs http
-  const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-  
-  let port = '';
-  // If it's localhost, we might need the port from the origin or host
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      const hostHeader = req.headers.host || '';
-      if (hostHeader.includes(':')) {
-          port = ':' + hostHeader.split(':')[1];
-      }
-      
-      // Often Vite runs on 5173, so if origin specifies it, use that
-      const origin = req.headers.origin || req.headers.referer;
-      if (origin && origin.includes('localhost:')) {
-          return {
-              rpID: 'localhost',
-              expectedOrigin: origin.endsWith('/') ? origin.slice(0, -1) : origin
-          };
-      }
+  let expectedOrigin = originHeader;
+  // Remove trailing slash if present
+  if (expectedOrigin.endsWith('/')) {
+    expectedOrigin = expectedOrigin.slice(0, -1);
   }
 
-  // rpID must be the naked domain (e.g., 'shopno-sonchoy.onrender.com', not 'https://...')
-  const rpID = hostname;
-  const expectedOrigin = `${protocol}://${hostname}${port}`;
+  let rpID;
+  try {
+    // Parse the origin to extract the hostname (e.g., 'localhost' or 'shopno-sonchoy.onrender.com')
+    const url = new URL(expectedOrigin);
+    rpID = url.hostname;
+  } catch (e) {
+    // Fallback if origin is completely missing (unlikely in browsers)
+    rpID = 'localhost';
+    expectedOrigin = 'http://localhost:5173';
+  }
 
   return { rpID, expectedOrigin };
 };
