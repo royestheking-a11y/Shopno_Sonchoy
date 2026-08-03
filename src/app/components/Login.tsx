@@ -4,6 +4,7 @@ import { ShieldCheck, Mail, Lock, ArrowRight, Building2, Globe2, Fingerprint, Sc
 import api from '../../utils/api';
 import { motion, AnimatePresence } from 'motion/react';
 import { useTranslation } from 'react-i18next';
+import { startAuthentication } from '@simplewebauthn/browser';
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -27,15 +28,43 @@ export function Login() {
     }
   };
 
-  const handleBiometricLogin = () => {
+  const handleBiometricLogin = async () => {
     setIsScanning(true);
     setError('');
     
-    // Simulate biometric scan delay
-    setTimeout(() => {
+    try {
+      // 1. Get authentication options from server (no email needed!)
+      const resp = await api.get('/webauthn/generate-authentication-options');
+      const { options, challengeId } = resp.data;
+      
+      // 2. Pass options to browser to authenticate
+      const asseResp = await startAuthentication({ optionsJSON: options });
+      
+      // 3. Send response back to server for verification
+      const verifyResp = await api.post('/webauthn/verify-authentication', {
+        challengeId,
+        response: asseResp
+      });
+      
+      if (verifyResp.data.verified) {
+        setScanSuccess(true);
+        setTimeout(() => {
+          localStorage.setItem('shopno_auth', JSON.stringify(verifyResp.data));
+          window.location.href = '/';
+        }, 1000);
+      } else {
+        setIsScanning(false);
+        setError('Authentication failed. Please try again.');
+      }
+    } catch (err: any) {
+      console.error(err);
       setIsScanning(false);
-      setError(t('login.error_biometric') || 'Biometric login is currently unavailable.');
-    }, 1500);
+      if (err.name === 'NotAllowedError') {
+        setError('Biometric authentication cancelled or timed out.');
+      } else {
+        setError(err.response?.data?.message || err.response?.data?.error || err.message || t('login.error_biometric') || 'Error with biometric login');
+      }
+    }
   };
 
   return (

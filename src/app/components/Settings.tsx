@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Save, User, Bell, Lock, Shield, X, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { startRegistration } from '@simplewebauthn/browser';
 import api from '../../utils/api';
 
 const Modal = ({ isOpen, onClose, title, children }: any) => {
@@ -77,6 +78,29 @@ export function Settings({ user }: { user: any }) {
       setTimeout(() => setPassStatus(''), 3000);
     } catch (err: any) {
       setPassStatus(err.response?.data?.message || 'Error updating password');
+    }
+  };
+
+  const handleRegisterBiometric = async () => {
+    try {
+      setPassStatus('Initializing biometric registration...');
+      
+      const resp = await api.get('/webauthn/generate-registration-options');
+      const options = resp.data;
+      
+      const attResp = await startRegistration({ optionsJSON: options });
+      
+      await api.post('/webauthn/verify-registration', attResp);
+      
+      setPassStatus('Biometric registration successful!');
+      setTimeout(() => setPassStatus(''), 3000);
+    } catch (err: any) {
+      console.error(err);
+      if (err.name === 'NotAllowedError') {
+        setPassStatus('Biometric registration cancelled.');
+      } else {
+        setPassStatus(err.response?.data?.error || err.message || 'Error registering biometric');
+      }
     }
   };
 
@@ -201,9 +225,16 @@ export function Settings({ user }: { user: any }) {
                   <input type="password" value={passwords.confirm} onChange={e => setPasswords({ ...passwords, confirm: e.target.value })} className="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-900/50 border border-[#E5E7EB] dark:border-slate-700 rounded-xl text-sm outline-none focus:border-primary dark:text-white" />
                 </div>
                 {passStatus && <p className="text-sm font-medium text-primary">{passStatus}</p>}
-                <button onClick={handlePasswordChange} className="mt-4 flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded-xl font-medium transition-colors">
-                  <Save size={18} /> Update Password
-                </button>
+                
+                <div className="flex gap-4">
+                  <button onClick={handlePasswordChange} className="mt-4 flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 py-2.5 rounded-xl font-medium transition-colors">
+                    <Save size={18} /> Update Password
+                  </button>
+                  <button onClick={handleRegisterBiometric} className="mt-4 flex-1 flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 rounded-xl font-medium transition-colors">
+                    <Shield size={18} /> Register Biometric
+                  </button>
+                </div>
+                <p className="text-xs text-slate-500 mt-2 text-center">Register Biometric allows you to log in with Face ID or Fingerprint on this device.</p>
               </div>
             </div>
           )}

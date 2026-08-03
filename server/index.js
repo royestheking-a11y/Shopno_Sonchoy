@@ -57,6 +57,7 @@ app.use('/api/settings', settingRoutes);
 app.use('/api/broadcasts', broadcastRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/transactions', transactionRoutes);
+app.use('/api/webauthn', require('./routes/webauthn'));
 
 // Health check / ping route for self-ping system
 app.get('/api/ping', (req, res) => {

@@ -16,7 +16,14 @@ const userSchema = new mongoose.Schema({
   nomineePhone: { type: String },
   balance: { type: Number, default: 0 },
   loanBalance: { type: Number, default: 0 },
-  advanceMonths: { type: Number, default: 0 }
+  advanceMonths: { type: Number, default: 0 },
+  currentChallenge: { type: String },
+  passkeys: [{
+    credentialID: String,
+    credentialPublicKey: String,
+    counter: Number,
+    transports: [String]
+  }]
 }, { timestamps: true });
 
 userSchema.pre('save', async function() {
