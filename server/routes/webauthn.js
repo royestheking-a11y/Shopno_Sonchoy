@@ -112,13 +112,13 @@ router.post('/verify-registration', auth, async (req, res) => {
     const { verified, registrationInfo } = verification;
 
     if (verified && registrationInfo) {
-      const { credentialID, credentialPublicKey, counter } = registrationInfo;
+      const { credential } = registrationInfo;
 
       const newPasskey = {
-        credentialID: Buffer.from(credentialID).toString('base64url'),
-        credentialPublicKey: Buffer.from(credentialPublicKey).toString('base64url'),
-        counter,
-        transports: body.response.transports || [],
+        credentialID: credential.id,
+        credentialPublicKey: Buffer.from(credential.publicKey).toString('base64url'),
+        counter: credential.counter,
+        transports: credential.transports || body.response.transports || [],
       };
 
       user.passkeys.push(newPasskey);
@@ -201,10 +201,11 @@ router.post('/verify-authentication', async (req, res) => {
         expectedChallenge,
         expectedOrigin,
         expectedRPID: rpID,
-        authenticator: {
-          credentialID: Buffer.from(passkey.credentialID, 'base64url'),
-          credentialPublicKey: Buffer.from(passkey.credentialPublicKey, 'base64url'),
+        credential: {
+          id: passkey.credentialID,
+          publicKey: new Uint8Array(Buffer.from(passkey.credentialPublicKey, 'base64url')),
           counter: passkey.counter,
+          transports: passkey.transports,
         },
       });
     } catch (error) {
