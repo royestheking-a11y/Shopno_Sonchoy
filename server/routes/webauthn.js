@@ -55,10 +55,14 @@ router.get('/generate-registration-options', auth, async (req, res) => {
     const user = req.user;
     const { rpID } = getWebAuthnConfig(req);
 
+    // Convert MongoDB ObjectId string to Uint8Array for SimpleWebAuthn compatibility
+    const userIDString = user._id.toString();
+    const userIDUint8Array = new Uint8Array(Buffer.from(userIDString, 'utf8'));
+
     const options = await generateRegistrationOptions({
       rpName,
       rpID,
-      userID: user._id.toString(), // Must be a string or Uint8Array
+      userID: userIDUint8Array,
       userName: user.email,
       userDisplayName: user.name,
       // Don't prompt users for their authenticator if they already registered it
