@@ -32,22 +32,9 @@ export function Login() {
     setError('');
     
     // Simulate biometric scan delay
-    setTimeout(async () => {
-      // In a real app, this would call WebAuthn / Passkeys API
-      try {
-        const res = await api.post('/auth/login', { 
-          email: 'admin@shopno.com', 
-          password: 'shopno9965' 
-        });
-        setScanSuccess(true);
-        setTimeout(() => {
-          localStorage.setItem('shopno_auth', JSON.stringify(res.data));
-          window.location.href = '/';
-        }, 1000);
-      } catch (err) {
-        setIsScanning(false);
-        setError(t('login.error_biometric'));
-      }
+    setTimeout(() => {
+      setIsScanning(false);
+      setError(t('login.error_biometric') || 'Biometric login is currently unavailable.');
     }, 1500);
   };
 
